@@ -9,7 +9,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "watched_courses")
+@Table(
+        name = "watched_courses",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"course_id", "term"})
+)
 public class WatchedCourse {
 
     @Id
@@ -18,7 +21,7 @@ public class WatchedCourse {
 
     @NotBlank
     @Size(max = 50)
-    @Column(name = "user_id", nullable = false, length = 50)
+    @Column(name = "course_id", nullable = false, length = 50)
     private String courseId;
 
     @NotBlank
