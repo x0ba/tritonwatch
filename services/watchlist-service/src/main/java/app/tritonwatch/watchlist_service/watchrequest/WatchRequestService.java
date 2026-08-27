@@ -33,7 +33,8 @@ public class WatchRequestService {
                 .orElseThrow(() -> new IllegalStateException("Watch request was not found after creation"));
 
         if (inserted == 1) {
-            producer.publish(watchRequest);
+            producer.publishUserCourseWatchCreated(watchRequest);
+            producer.publishCourseTrackingRequested(watchRequest);
         }
 
         return new CreateWatchResult(
@@ -50,5 +51,4 @@ public class WatchRequestService {
                 watchRequest.getCreatedAt()
         );
     }
-
 }

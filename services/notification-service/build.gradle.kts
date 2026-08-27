@@ -23,7 +23,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-kafka")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
-	implementation("org.flywaydb:flyway-core")
+	implementation("org.springframework.boot:spring-boot-starter-flyway")
 	implementation("app.tritonwatch:event-contracts:0.0.1-SNAPSHOT")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
