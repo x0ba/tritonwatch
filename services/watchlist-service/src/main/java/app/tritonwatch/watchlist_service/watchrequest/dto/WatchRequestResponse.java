@@ -1,4 +1,7 @@
 package app.tritonwatch.watchlist_service.watchrequest.dto;
 
-public record WatchRequestResponse() {
+import java.time.Instant;
+import java.util.UUID;
+
+public record WatchRequestResponse(UUID id, String courseId, String term, Instant createdAt) {
 }
