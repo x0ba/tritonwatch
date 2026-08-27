@@ -3,6 +3,9 @@ package app.tritonwatch.ingestion_service.watchedcourse;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -11,8 +14,12 @@ import java.util.UUID;
 @Entity
 @Table(
         name = "watched_courses",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"course_id", "term"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"course_id", "term"}),
+        indexes = @Index(columnList = "term")
 )
+@Getter
+@Setter
+@NoArgsConstructor
 public class WatchedCourse {
 
     @Id
