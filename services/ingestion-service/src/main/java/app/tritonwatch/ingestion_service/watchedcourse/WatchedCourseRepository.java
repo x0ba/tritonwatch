@@ -5,9 +5,12 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface WatchedCourseRepository extends JpaRepository<WatchedCourse, UUID> {
+
+    List<WatchedCourse> findAllByTerm(String term);
 
     @Modifying
     @Query(value = """
@@ -27,5 +30,5 @@ public interface WatchedCourseRepository extends JpaRepository<WatchedCourse, UU
                 )
                 ON CONFLICT (course_id, term) DO NOTHING
             """, nativeQuery = true)
-    int insertIfAbsent(@Param("id") UUID id, @Param("courseId") String courseId, @Param("term") String term);
+    void insertIfAbsent(@Param("id") UUID id, @Param("courseId") String courseId, @Param("term") String term);
 }

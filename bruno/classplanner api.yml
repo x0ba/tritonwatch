@@ -16,7 +16,7 @@ http:
           "CSE 008A",
           "MATH 020C"
         ],
-        "limit": 24
+        "limit": 48
       }
   auth: inherit
 
