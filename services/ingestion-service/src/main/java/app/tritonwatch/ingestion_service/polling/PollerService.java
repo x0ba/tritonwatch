@@ -1,5 +1,6 @@
 package app.tritonwatch.ingestion_service.polling;
 
+import app.tritonwatch.ingestion_service.currentcourseavailability.CurrentCourseAvailabilityService;
 import app.tritonwatch.ingestion_service.ucsd.UcsdCatalogClient;
 import app.tritonwatch.ingestion_service.ucsd.dto.CatalogCourseResponse;
 import app.tritonwatch.ingestion_service.watchedcourse.WatchedCourse;
@@ -16,15 +17,16 @@ public class PollerService {
 
     private final UcsdCatalogClient ucsdCatalogClient;
     private final WatchedCourseRepository watchedCourseRepository;
+    private final CurrentCourseAvailabilityService currentCourseAvailabilityService;
 
-    public List<CatalogCourseResponse> getWatchedCoursesForCurrentTerm() {
+    public void getWatchedCoursesForCurrentTerm() {
         String term = ucsdCatalogClient.getCurrentTerm();
         List<String> watchedCourseIds = watchedCourseRepository.findAllByTerm(term).stream()
                 .map(WatchedCourse::getCourseId)
                 .toList();
 
         if (watchedCourseIds.isEmpty()) {
-            return List.of();
+            return;
         }
 
         int limit = 48;
@@ -52,7 +54,8 @@ public class PollerService {
         }
 
         for (var course : allCourses) {
-
+            currentCourseAvailabilityService.process(course);
         }
+
     }
 }

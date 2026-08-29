@@ -3,14 +3,14 @@ package app.tritonwatch.contracts.event;
 import java.time.Instant;
 import java.util.UUID;
 
-public record CourseSectionChanged(
+public record CourseSectionBecameAvailable(
         UUID eventId,
         Instant occurredAt,
         String courseId,
-        String sectionId,
         String term,
-        int capacity,
-        int availableSeats,
-        int previousAvailableSeats
+        int openSeatCount,
+        int previousOpenSeatCount,
+        int openPackageCount,
+        int previousOpenPackageCount
 ) {
 }

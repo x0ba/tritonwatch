@@ -1,5 +1,6 @@
 package app.tritonwatch.ingestion_service.currentcourseavailability;
 
+import app.tritonwatch.ingestion_service.outbox.OutboxEventWriter;
 import app.tritonwatch.ingestion_service.ucsd.dto.CatalogCourseResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class CurrentCourseAvailabilityService {
 
     private final CurrentCourseAvailabilityRepository currentCourseAvailabilityRepository;
+    private final OutboxEventWriter outboxEventWriter;
 
     @Transactional
     public void process(CatalogCourseResponse course) {
@@ -42,7 +44,11 @@ public class CurrentCourseAvailabilityService {
         availability.setOpenPackageCount(course.openPackageCount());
 
         if (!wasAvailable && isAvailable) {
-            // write to outbox table
+            outboxEventWriter.appendCourseSectionBecameAvailable(
+                    availability,
+                    previousOpenSeatCount,
+                    previousOpenPackageCount
+            );
         }
     }
 }

@@ -17,4 +17,4 @@ create_topic() {
 
 create_topic tritonwatch.user-course-watch-created.v1
 create_topic tritonwatch.course-tracking-requested.v1
-create_topic tritonwatch.course-section-changed.v1
+create_topic tritonwatch.course-section-became-available.v1

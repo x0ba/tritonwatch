@@ -1,7 +1,5 @@
 # Tritonwatch
 
-- [ ] latest todo: implement outbox event sending for CourseSectionBecameAvailable
-
 WIP: App that alerts students via email or text when their UCSD courses open up.
 
 ## Architecture
@@ -29,7 +27,7 @@ creates:
 
 - `tritonwatch.user-course-watch-created.v1`
 - `tritonwatch.course-tracking-requested.v1`
-- `tritonwatch.course-section-changed.v1`
+- `tritonwatch.course-section-became-available.v1`
 
 To reset all local database state (the database initialization script only runs on a new volume):
 

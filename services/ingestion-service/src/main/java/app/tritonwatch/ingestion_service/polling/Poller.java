@@ -12,6 +12,6 @@ public class Poller {
 
     @Scheduled(fixedDelayString = "${tritonwatch.ingestion.poll-interval}")
     public void poll() {
-
+        pollerService.getWatchedCoursesForCurrentTerm();
     }
 }
