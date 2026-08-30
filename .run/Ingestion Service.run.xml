@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Ingestion Service" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="ingestion-service.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="app.tritonwatch.ingestion_service.IngestionServiceApplication" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/services/ingestion-service" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

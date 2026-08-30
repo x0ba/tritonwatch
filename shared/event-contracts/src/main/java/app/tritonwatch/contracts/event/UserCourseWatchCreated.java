@@ -6,7 +6,7 @@ import java.util.UUID;
 public record UserCourseWatchCreated(
         UUID eventId,
         Instant occurredAt,
-        UUID userId,
+        String userId,
         String courseId,
         String term
 ) {

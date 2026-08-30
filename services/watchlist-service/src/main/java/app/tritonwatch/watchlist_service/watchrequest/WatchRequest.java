@@ -23,9 +23,10 @@ public class WatchRequest {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotNull
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "user_id", nullable = false, length = 255)
+    private String userId;
 
     @NotBlank
     @Size(max = 50)

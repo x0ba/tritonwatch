@@ -7,9 +7,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/watch-requests")
@@ -20,10 +20,10 @@ public class WatchRequestController {
 
     @PostMapping
     public ResponseEntity<WatchRequestResponse> createWatchRequest(
-            @RequestHeader("X-User-Id") UUID userId,
+            @AuthenticationPrincipal Jwt accessToken,
             @RequestBody @Valid CreateWatchRequest request
     ) {
-        CreateWatchResult result = watchRequestService.create(userId, request);
+        CreateWatchResult result = watchRequestService.create(accessToken.getSubject(), request);
 
         HttpStatus status = result.created() ? HttpStatus.CREATED : HttpStatus.OK;
         

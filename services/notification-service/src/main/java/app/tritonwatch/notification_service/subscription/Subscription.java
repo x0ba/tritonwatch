@@ -2,7 +2,6 @@ package app.tritonwatch.notification_service.subscription;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,9 +23,10 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotNull
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "user_id", nullable = false, length = 255)
+    private String userId;
 
     @NotBlank
     @Size(max = 50)

@@ -19,7 +19,7 @@ public class WatchRequestService {
     private final OutboxEventWriter outboxEventWriter;
 
     @Transactional
-    public CreateWatchResult create(UUID userId, CreateWatchRequest request) {
+    public CreateWatchResult create(String userId, CreateWatchRequest request) {
 
         String normalizedCourseId = request.courseId().trim().toUpperCase(Locale.ROOT);
         String normalizedTerm = request.term().trim().toUpperCase(Locale.ROOT);

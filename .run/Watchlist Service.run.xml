@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Watchlist Service" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="watchlist-service.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="app.tritonwatch.watchlist_service.WatchlistServiceApplication" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/services/watchlist-service" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

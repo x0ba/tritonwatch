@@ -42,9 +42,12 @@ cd services/watchlist-service
 ./gradlew bootRun
 ```
 
-All runtime settings have local defaults and can be overridden with environment variables, including `DATABASE_URL`,
+Most runtime settings have local defaults and can be overridden with environment variables, including `DATABASE_URL`,
 `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `KAFKA_BOOTSTRAP_SERVERS`, and `SERVER_PORT`. Ingestion also accepts
 `INGESTION_POLL_INTERVAL` and `UCSD_API_BASE_URL`.
+
+`watchlist-service` is an Auth0-protected resource server and also requires `AUTH0_ISSUER` and `AUTH0_AUDIENCE`.
+See the complete [Auth0 setup and integration guide](docs/auth0.md).
 
 ## Database migrations
 

@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Notification Service" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="notification-service.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="app.tritonwatch.notification_service.NotificationServiceApplication" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/services/notification-service" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface WatchRequestRepository extends JpaRepository<WatchRequest, UUID> {
-    Optional<WatchRequest> findByUserIdAndCourseIdAndTerm(UUID userId, String courseId, String term);
+    Optional<WatchRequest> findByUserIdAndCourseIdAndTerm(String userId, String courseId, String term);
 
     @Modifying
     @Query(value = """
@@ -31,6 +31,6 @@ public interface WatchRequestRepository extends JpaRepository<WatchRequest, UUID
                 )
                 ON CONFLICT (user_id, course_id, term) DO NOTHING 
             """, nativeQuery = true)
-    int insertIfAbsent(@Param("id") UUID id, @Param("userId") UUID userId, @Param("courseId") String courseId, @Param("term") String term);
+    int insertIfAbsent(@Param("id") UUID id, @Param("userId") String userId, @Param("courseId") String courseId, @Param("term") String term);
 
 }
