@@ -1,5 +1,5 @@
-CREATE USER course_service WITH PASSWORD 'course_service';
-CREATE DATABASE course_service OWNER course_service;
+CREATE USER user_service WITH PASSWORD 'user_service';
+CREATE DATABASE user_service OWNER user_service;
 
 CREATE USER ingestion_service WITH PASSWORD 'ingestion_service';
 CREATE DATABASE ingestion_service OWNER ingestion_service;

@@ -1,0 +1,1 @@
+-- Intentionally empty baseline. Add service-owned schema in V2 and later migrations.
