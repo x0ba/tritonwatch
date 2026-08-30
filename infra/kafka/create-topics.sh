@@ -15,6 +15,18 @@ create_topic() {
     --config retention.ms="${KAFKA_TOPIC_RETENTION_MS:-604800000}"
 }
 
+create_compacted_topic() {
+  /opt/kafka/bin/kafka-topics.sh \
+    --bootstrap-server "$BOOTSTRAP_SERVER" \
+    --create \
+    --if-not-exists \
+    --topic "$1" \
+    --partitions "${KAFKA_TOPIC_PARTITIONS:-3}" \
+    --replication-factor 1 \
+    --config cleanup.policy=compact
+}
+
 create_topic tritonwatch.user-course-watch-created.v1
 create_topic tritonwatch.course-tracking-requested.v1
 create_topic tritonwatch.course-section-became-available.v1
+create_compacted_topic tritonwatch.user-notification-settings-updated.v1

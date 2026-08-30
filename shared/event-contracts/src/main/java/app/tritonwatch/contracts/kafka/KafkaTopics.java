@@ -8,6 +8,8 @@ public final class KafkaTopics {
             "tritonwatch.course-tracking-requested.v1";
     public static final String COURSE_SECTION_BECAME_AVAILABLE =
             "tritonwatch.course-section-became-available.v1";
+    public static final String USER_NOTIFICATION_SETTINGS_UPDATED =
+            "tritonwatch.user-notification-settings-updated.v1";
 
     private KafkaTopics() {
     }
