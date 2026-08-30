@@ -1,12 +1,16 @@
 # Auth0 authentication for Tritonwatch
 
-Tritonwatch's public boundary is `watchlist-service`. It is now an OAuth 2.0 resource server: clients send an Auth0 access token, Spring Security verifies it, and the service takes the owner ID from the verified token's `sub` claim. Clients must not send `X-User-Id`.
+Tritonwatch's public boundaries are `watchlist-service` and `user-service`. They are OAuth 2.0 resource servers: clients
+send an Auth0 access token, Spring Security verifies it, and each service takes the owner ID from the verified token's
+`sub` claim. Clients must not send `X-User-Id`.
 
 This setup uses Auth0 Universal Login for a browser client and Authorization Code with PKCE. The API is stateless; it does not create a server session and it does not need an Auth0 client secret.
 
 ## Authentication boundary
 
-At present, `POST /api/v1/watch-requests` is the repository's only browser-facing application endpoint, so authentication is implemented in `watchlist-service`. `ingestion-service` and `notification-service` are asynchronous workers; they trust events from Kafka rather than accepting a user's bearer token. `course-service` has no controllers yet. When it gains endpoints, either mark genuinely public catalog reads `permitAll()` or apply a separate read scope such as `read:courses` using the same resource-server configuration.
+The browser-facing application endpoints are implemented by `watchlist-service` and `user-service`. Both validate Auth0
+access tokens and derive ownership from `sub`. `ingestion-service` and `notification-service` are asynchronous workers;
+they trust events from Kafka rather than accepting a user's bearer token.
 
 Auth0 secures HTTP clients, not Kafka. In production, protect Kafka separately with network isolation plus broker authentication/ACLs so an attacker cannot publish a forged `UserCourseWatchCreated` event. If services later call one another over HTTP, create a separate Auth0 Machine to Machine application and narrow service scopes; do not reuse the browser client.
 
@@ -27,8 +31,11 @@ Open the API's **Permissions** tab and add:
 | Permission | Description |
 | --- | --- |
 | `create:watch-requests` | Create a course watch for the current user |
+| `read:user-profile` | Read the current user's Tritonwatch profile |
+| `update:user-profile` | Create, update, or delete the current user's profile and notification preferences |
 
-The endpoint requires that scope. Spring Security converts a JWT scope named `create:watch-requests` to the authority `SCOPE_create:watch-requests`.
+Each endpoint requires its corresponding scope. Spring Security converts a JWT scope such as `update:user-profile` to
+the authority `SCOPE_update:user-profile`.
 
 If you turn on Auth0 RBAC, assign this permission to the student role and assign users to that role. Keeping authorization as a scope check means the API works for both user tokens and authorized machine-to-machine test clients.
 
@@ -110,7 +117,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       authorizationParams={{
         redirect_uri: window.location.origin,
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-        scope: "openid profile email create:watch-requests",
+        scope: "openid profile email create:watch-requests read:user-profile update:user-profile",
       }}
       cacheLocation="memory"
     >
