@@ -1,0 +1,161 @@
+variable "aws_region" {
+  description = "AWS region in which Tritonwatch is deployed."
+  type        = string
+  default     = "us-west-2"
+}
+
+variable "availability_zone" {
+  description = "Availability Zone for the single cost-optimized ECS host."
+  type        = string
+  default     = "us-west-2a"
+
+  validation {
+    condition     = startswith(var.availability_zone, var.aws_region)
+    error_message = "availability_zone must belong to aws_region."
+  }
+}
+
+variable "project_name" {
+  description = "Prefix used for AWS resource names."
+  type        = string
+  default     = "tritonwatch"
+}
+
+variable "environment" {
+  description = "Deployment environment name."
+  type        = string
+  default     = "production"
+}
+
+variable "instance_type" {
+  description = "ECS container instance type. Increase to t3a.large if 4 GB is insufficient."
+  type        = string
+  default     = "t3a.medium"
+}
+
+variable "root_volume_size_gb" {
+  description = "Root EBS volume size used by the OS, images, PostgreSQL, and Kafka."
+  type        = number
+  default     = 50
+
+  validation {
+    condition     = var.root_volume_size_gb >= 30
+    error_message = "root_volume_size_gb must be at least 30 GB."
+  }
+}
+
+variable "image_tag" {
+  description = "ECR image tag deployed by the ECS task definition."
+  type        = string
+  default     = "latest"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$", var.image_tag))
+    error_message = "image_tag must be a valid Docker tag."
+  }
+}
+
+variable "deploy_application" {
+  description = "Run one application task after its images have been pushed to ECR."
+  type        = bool
+  default     = false
+}
+
+variable "api_domain_name" {
+  description = "Public API hostname used by Caddy, such as api.tritonwatch.app."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$", var.api_domain_name))
+    error_message = "api_domain_name must be a fully qualified hostname without a URL scheme or path."
+  }
+}
+
+variable "acme_email" {
+  description = "Email address used for ACME certificate registration."
+  type        = string
+
+  validation {
+    condition     = can(regex("^[^@[:space:]]+@[^@[:space:]]+\\.[^@[:space:]]+$", var.acme_email))
+    error_message = "acme_email must be an email address."
+  }
+}
+
+variable "auth0_issuer" {
+  description = "Auth0 issuer URL, normally ending in a slash."
+  type        = string
+
+  validation {
+    condition     = startswith(var.auth0_issuer, "https://") && endswith(var.auth0_issuer, "/")
+    error_message = "auth0_issuer must be an HTTPS URL ending in a slash."
+  }
+}
+
+variable "auth0_audience" {
+  description = "Auth0 API audience."
+  type        = string
+}
+
+variable "cors_allowed_origins" {
+  description = "Comma-separated browser origins permitted by the API services."
+  type        = string
+
+  validation {
+    condition     = length(trimspace(var.cors_allowed_origins)) > 0
+    error_message = "cors_allowed_origins must contain at least one browser origin."
+  }
+}
+
+variable "ingestion_poll_interval" {
+  description = "Delay between UCSD catalog polling passes."
+  type        = string
+  default     = "2m"
+}
+
+variable "ucsd_api_base_url" {
+  description = "UCSD catalog API base URL."
+  type        = string
+  default     = "https://classplanner.apps.ucsd.edu"
+}
+
+variable "route53_zone_id" {
+  description = "Optional existing Route 53 hosted zone. Leave null when DNS is managed elsewhere."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "budget_email" {
+  description = "Optional email address for AWS Budget notifications."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "monthly_budget_usd" {
+  description = "Account-wide monthly AWS budget alert threshold."
+  type        = number
+  default     = 50
+
+  validation {
+    condition     = var.monthly_budget_usd > 0
+    error_message = "monthly_budget_usd must be greater than zero."
+  }
+}
+
+variable "enable_backups" {
+  description = "Create daily AWS Backup recovery points for the ECS host."
+  type        = bool
+  default     = true
+}
+
+variable "backup_retention_days" {
+  description = "Number of days to retain daily EC2 backups."
+  type        = number
+  default     = 7
+
+  validation {
+    condition     = var.backup_retention_days >= 1
+    error_message = "backup_retention_days must be at least one day."
+  }
+}

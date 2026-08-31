@@ -1,0 +1,26 @@
+aws_region        = "us-west-2"
+availability_zone = "us-west-2a"
+
+project_name  = "tritonwatch"
+environment   = "production"
+instance_type = "t3a.medium"
+
+# Keep false for the first apply. Push images, then change it to true.
+deploy_application = false
+image_tag          = "latest"
+
+api_domain_name = "api.example.com"
+acme_email       = "admin@example.com"
+
+auth0_issuer         = "https://example.us.auth0.com/"
+auth0_audience       = "https://api.example.com"
+cors_allowed_origins = "https://example.com"
+
+# Set this when the domain is hosted in Route 53. Otherwise create the A record yourself.
+route53_zone_id = null
+
+budget_email       = "admin@example.com"
+monthly_budget_usd = 50
+
+enable_backups        = true
+backup_retention_days = 7
