@@ -1,0 +1,228 @@
+name: tritonwatch
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  init: true
+  networks:
+    - application
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "3"
+
+x-java-environment: &java-environment
+  KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+  JAVA_TOOL_OPTIONS: >-
+    -XX:InitialRAMPercentage=25
+    -XX:MaxRAMPercentage=65
+    -XX:+UseSerialGC
+    -XX:+ExitOnOutOfMemoryError
+
+services:
+  postgres:
+    image: postgres:17
+    <<: *service-defaults
+    mem_limit: 512m
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?POSTGRES_ADMIN_PASSWORD is required}
+      USER_DATABASE_PASSWORD: ${USER_DATABASE_PASSWORD:?USER_DATABASE_PASSWORD is required}
+      WATCHLIST_DATABASE_PASSWORD: ${WATCHLIST_DATABASE_PASSWORD:?WATCHLIST_DATABASE_PASSWORD is required}
+      INGESTION_DATABASE_PASSWORD: ${INGESTION_DATABASE_PASSWORD:?INGESTION_DATABASE_PASSWORD is required}
+      NOTIFICATION_DATABASE_PASSWORD: ${NOTIFICATION_DATABASE_PASSWORD:?NOTIFICATION_DATABASE_PASSWORD is required}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-databases.sh:/docker-entrypoint-initdb.d/10-init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  kafka:
+    image: apache/kafka:4.1.1
+    <<: *service-defaults
+    mem_limit: 768m
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: CONTROLLER://:9093,INTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_HEAP_OPTS: -Xms384m -Xmx384m
+      KAFKA_LOG_RETENTION_HOURS: ${KAFKA_LOG_RETENTION_HOURS:-168}
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          /opt/kafka/bin/kafka-broker-api-versions.sh
+          --bootstrap-server localhost:29092
+          >/dev/null 2>&1
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  kafka-init:
+    image: apache/kafka:4.1.1
+    networks:
+      - application
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BOOTSTRAP_SERVER: kafka:29092
+      KAFKA_TOPIC_PARTITIONS: ${KAFKA_TOPIC_PARTITIONS:-3}
+      KAFKA_TOPIC_RETENTION_MS: ${KAFKA_TOPIC_RETENTION_MS:-604800000}
+    entrypoint: ["/bin/sh", "/topics/create-topics.sh"]
+    volumes:
+      - ../kafka/create-topics.sh:/topics/create-topics.sh:ro
+    restart: "no"
+
+  user-service:
+    image: tritonwatch/user-service:${IMAGE_TAG:-latest}
+    <<: *service-defaults
+    mem_limit: 448m
+    environment:
+      <<: *java-environment
+      SERVER_PORT: 8081
+      DATABASE_URL: jdbc:postgresql://postgres:5432/user_service
+      DATABASE_USERNAME: user_service
+      DATABASE_PASSWORD: ${USER_DATABASE_PASSWORD:?USER_DATABASE_PASSWORD is required}
+      AUTH0_ISSUER: ${AUTH0_ISSUER:?AUTH0_ISSUER is required}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:?AUTH0_AUDIENCE is required}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        ["CMD", "curl", "--fail", "--silent", "http://localhost:8081/actuator/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  watchlist-service:
+    image: tritonwatch/watchlist-service:${IMAGE_TAG:-latest}
+    <<: *service-defaults
+    mem_limit: 448m
+    environment:
+      <<: *java-environment
+      SERVER_PORT: 8082
+      DATABASE_URL: jdbc:postgresql://postgres:5432/watchlist_service
+      DATABASE_USERNAME: watchlist_service
+      DATABASE_PASSWORD: ${WATCHLIST_DATABASE_PASSWORD:?WATCHLIST_DATABASE_PASSWORD is required}
+      AUTH0_ISSUER: ${AUTH0_ISSUER:?AUTH0_ISSUER is required}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:?AUTH0_AUDIENCE is required}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        ["CMD", "curl", "--fail", "--silent", "http://localhost:8082/actuator/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  ingestion-service:
+    image: tritonwatch/ingestion-service:${IMAGE_TAG:-latest}
+    <<: *service-defaults
+    mem_limit: 512m
+    environment:
+      <<: *java-environment
+      SERVER_PORT: 8083
+      DATABASE_URL: jdbc:postgresql://postgres:5432/ingestion_service
+      DATABASE_USERNAME: ingestion_service
+      DATABASE_PASSWORD: ${INGESTION_DATABASE_PASSWORD:?INGESTION_DATABASE_PASSWORD is required}
+      INGESTION_POLL_INTERVAL: ${INGESTION_POLL_INTERVAL:-2m}
+      UCSD_API_BASE_URL: ${UCSD_API_BASE_URL:-https://classplanner.apps.ucsd.edu}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        ["CMD", "curl", "--fail", "--silent", "http://localhost:8083/actuator/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  notification-service:
+    image: tritonwatch/notification-service:${IMAGE_TAG:-latest}
+    <<: *service-defaults
+    mem_limit: 448m
+    environment:
+      <<: *java-environment
+      SERVER_PORT: 8084
+      DATABASE_URL: jdbc:postgresql://postgres:5432/notification_service
+      DATABASE_USERNAME: notification_service
+      DATABASE_PASSWORD: ${NOTIFICATION_DATABASE_PASSWORD:?NOTIFICATION_DATABASE_PASSWORD is required}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        ["CMD", "curl", "--fail", "--silent", "http://localhost:8084/actuator/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  caddy:
+    image: caddy:2.10-alpine
+    <<: *service-defaults
+    mem_limit: 128m
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?API_DOMAIN is required}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL is required}
+    depends_on:
+      user-service:
+        condition: service_healthy
+      watchlist-service:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    healthcheck:
+      test:
+        ["CMD", "wget", "--quiet", "--spider", "http://localhost:2019/config/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  application:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  kafka-data:
+  caddy-data:
+  caddy-config:

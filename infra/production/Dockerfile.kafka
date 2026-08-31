@@ -1,0 +1,3 @@
+FROM apache/kafka:4.1.1
+
+COPY --chmod=0755 infra/kafka/create-topics.sh /opt/tritonwatch/create-topics.sh

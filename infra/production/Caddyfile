@@ -1,0 +1,36 @@
+{
+	admin 0.0.0.0:2019
+	email {$ACME_EMAIL}
+}
+
+{$API_DOMAIN} {
+	encode zstd gzip
+
+	handle /health/user {
+		rewrite * /actuator/health
+		reverse_proxy user-service:8081
+	}
+
+	handle /health/watchlist {
+		rewrite * /actuator/health
+		reverse_proxy watchlist-service:8082
+	}
+
+	@user_api path /api/v1/me /api/v1/me/*
+	handle @user_api {
+		reverse_proxy user-service:8081 {
+			health_uri /actuator/health
+			health_interval 30s
+		}
+	}
+
+	@watchlist_api path /api/v1/watch-requests /api/v1/watch-requests/*
+	handle @watchlist_api {
+		reverse_proxy watchlist-service:8082 {
+			health_uri /actuator/health
+			health_interval 30s
+		}
+	}
+
+	respond "Not found" 404
+}
