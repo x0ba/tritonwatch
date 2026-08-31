@@ -233,7 +233,9 @@ requests still omit a user ID; `user-service` takes it from the verified access 
 
 ## 5. Test without a frontend
 
-Create an Auth0 **Machine to Machine Application**, authorize it for `Tritonwatch API`, and grant `create:watch-requests`. This client secret is only for local testing or a secure server, never a browser.
+Create an Auth0 **Machine to Machine Application**, authorize it for `Tritonwatch API`, and grant
+`create:watch-requests`, `read:user-profile`, and `update:user-profile`. This client secret is only for local testing or a
+secure server, never a browser.
 
 ```bash
 export AUTH0_DOMAIN='YOUR_TENANT.us.auth0.com'
@@ -250,6 +252,14 @@ curl --include --request POST 'http://localhost:8082/api/v1/watch-requests' \
   --header "Authorization: Bearer ${ACCESS_TOKEN}" \
   --header 'Content-Type: application/json' \
   --data '{"courseId":"CSE 100","term":"FA26"}'
+
+curl --include --request PUT 'http://localhost:8081/api/v1/me' \
+  --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+  --header 'Content-Type: application/json' \
+  --data '{"displayName":"Local test","email":"student@example.edu","phoneNumber":null}'
+
+curl --include 'http://localhost:8081/api/v1/me' \
+  --header "Authorization: Bearer ${ACCESS_TOKEN}"
 ```
 
 Expected behavior:
@@ -257,17 +267,30 @@ Expected behavior:
 | Request | Result |
 | --- | --- |
 | No bearer token, malformed token, wrong issuer/audience, expired token | `401 Unauthorized` |
-| Valid token missing `create:watch-requests` | `403 Forbidden` |
+| Valid token missing the endpoint's required scope | `403 Forbidden` |
 | Valid token and scope, new watch | `201 Created` |
 | Valid token and scope, duplicate watch for the same subject/course/term | `200 OK` |
+| `GET /api/v1/me` with `read:user-profile`, no profile for the subject | `404 Not Found` |
+| `PUT /api/v1/me` with `update:user-profile`, new profile | `201 Created` |
+| `PUT /api/v1/me` with `update:user-profile`, existing profile | `200 OK` |
+| `GET /api/v1/me` with `read:user-profile`, existing profile | `200 OK` |
+| `DELETE /api/v1/me` with `update:user-profile` | `204 No Content` |
 
 An M2M token's subject identifies the application rather than a student. It is useful for transport/security testing, but use a real Universal Login user token to test user ownership.
 
 ## 6. Data and event contract changes
 
-Auth0 subjects look like `auth0|6553...`; they are not UUIDs. `watch_requests.user_id`, `subscriptions.user_id`, and `UserCourseWatchCreated.userId` are therefore strings up to 255 characters. Flyway migrations preserve existing UUID values by converting them to text.
+Auth0 subjects look like `auth0|6553...`; they are not UUIDs. The following values are therefore strings up to 255
+characters:
 
-The event payload is now conceptually:
+- `watch_requests.user_id` and `subscriptions.user_id`;
+- `user_profiles.user_id`, `notification_preferences.user_id`, and `sms_consents.user_id`; and
+- `UserCourseWatchCreated.userId` and `UserNotificationSettingsUpdated.userId`.
+
+The watchlist and notification Flyway migrations preserve existing UUID values by converting them to text. The
+user-service tables use `VARCHAR(255)` from their initial schema.
+
+The `UserCourseWatchCreated` payload is conceptually:
 
 ```json
 {
@@ -278,6 +301,27 @@ The event payload is now conceptually:
   "term": "FA26"
 }
 ```
+
+Profile or notification-preference changes publish a separate event whose payload is conceptually:
+
+```json
+{
+  "eventId": "27bb0684-a9c5-4f17-81e7-26eb423e1b62",
+  "occurredAt": "2026-08-30T12:05:00Z",
+  "userId": "auth0|6553da60a54af58e29493993",
+  "profileVersion": 2,
+  "status": "ACTIVE",
+  "email": "student@example.edu",
+  "emailVerified": false,
+  "phoneNumberE164": "+18585550123",
+  "phoneVerified": false,
+  "emailEnabled": true,
+  "smsEnabled": false
+}
+```
+
+`UserNotificationSettingsUpdated` is published to the compacted
+`tritonwatch.user-notification-settings-updated.v1` topic with the Auth0 subject as its Kafka key.
 
 Because the Kafka payload changed incompatibly, deploy `notification-service` with the new shared contract before (or at the same time as) the authenticated `watchlist-service`. In a mature deployment, publish this as a v2 topic instead of changing a v1 payload in place.
 
