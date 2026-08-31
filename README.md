@@ -36,6 +36,10 @@ To reset all local database state (the database initialization script only runs 
 docker compose -f infra/docker-compose.yml down -v
 ```
 
+## AWS deployment
+
+The cost-optimized production deployment uses Amazon ECS with one EC2 container instance. See the complete [Amazon ECS deployment guide](docs/deployment-ecs.md).
+
 ## Running a service
 
 ```bash
