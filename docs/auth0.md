@@ -103,7 +103,7 @@ They:
 - disable CSRF and server sessions because authentication is a bearer token; and
 - restrict browser CORS to configured origins.
 
-## 4. Call the API from a frontend
+## 4. Call the APIs from a frontend
 
 There is no frontend package in this repository yet. In a React/Vite client, install the official React SDK:
 
@@ -117,7 +117,8 @@ Set public frontend variables (these are safe to expose):
 VITE_AUTH0_DOMAIN=YOUR_TENANT.us.auth0.com
 VITE_AUTH0_CLIENT_ID=YOUR_SPA_CLIENT_ID
 VITE_AUTH0_AUDIENCE=https://api.tritonwatch.app
-VITE_API_BASE_URL=http://localhost:8082
+VITE_WATCHLIST_API_BASE_URL=http://localhost:8082
+VITE_USER_API_BASE_URL=http://localhost:8081
 ```
 
 Wrap the app at its entry point:
@@ -184,7 +185,7 @@ export function useWatchRequests() {
       },
     });
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/watch-requests`, {
+    const response = await fetch(`${import.meta.env.VITE_WATCHLIST_API_BASE_URL}/api/v1/watch-requests`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -200,6 +201,35 @@ export function useWatchRequests() {
 ```
 
 Auth0's `sub` claim is intentionally absent from the request body. The controller reads it from the verified JWT and passes it to persistence.
+
+Calls to `user-service` use its base URL and the profile scope corresponding to the operation. For example:
+
+```tsx
+import { useAuth0 } from "@auth0/auth0-react";
+
+export function useUserProfile() {
+  const { getAccessTokenSilently } = useAuth0();
+
+  return async () => {
+    const accessToken = await getAccessTokenSilently({
+      authorizationParams: {
+        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        scope: "read:user-profile",
+      },
+    });
+
+    const response = await fetch(`${import.meta.env.VITE_USER_API_BASE_URL}/api/v1/me`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!response.ok) throw new Error(`Get profile failed (${response.status})`);
+    return response.json();
+  };
+}
+```
+
+Use `update:user-profile` instead for profile creation/replacement, preference updates, and profile deletion. Those
+requests still omit a user ID; `user-service` takes it from the verified access token.
 
 ## 5. Test without a frontend
 
