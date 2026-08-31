@@ -37,7 +37,7 @@ Open the API's **Permissions** tab and add:
 Each endpoint requires its corresponding scope. Spring Security converts a JWT scope such as `update:user-profile` to
 the authority `SCOPE_update:user-profile`.
 
-If you turn on Auth0 RBAC, assign this permission to the student role and assign users to that role. Keeping authorization as a scope check means the API works for both user tokens and authorized machine-to-machine test clients.
+If you turn on Auth0 RBAC, assign these permissions to the student role and assign users to that role. Keeping authorization as a scope check means the API works for both user tokens and authorized machine-to-machine test clients.
 
 ## 2. Create the browser application
 
@@ -51,9 +51,9 @@ Create an Auth0 **Single Page Application**. For a frontend running on Vite's de
 
 Add the deployed HTTPS origin to all three lists for production. Do not put an SPA client secret in browser code; a SPA is a public client and uses PKCE.
 
-## 3. Configure and run the API
+## 3. Configure and run the APIs
 
-Export the tenant issuer and API identifier before starting `watchlist-service`:
+Start the shared infrastructure, then export the tenant issuer and API identifier before starting both HTTP services:
 
 ```bash
 export AUTH0_ISSUER='https://YOUR_TENANT.us.auth0.com/'
@@ -61,7 +61,19 @@ export AUTH0_AUDIENCE='https://api.tritonwatch.app'
 export CORS_ALLOWED_ORIGINS='http://localhost:5173'
 
 docker compose -f infra/docker-compose.yml up -d
+```
+
+Start `watchlist-service` in that terminal:
+
+```bash
 cd services/watchlist-service
+./gradlew bootRun
+```
+
+In a second terminal, repeat the three exports above and start `user-service` from the repository root:
+
+```bash
+cd services/user-service
 ./gradlew bootRun
 ```
 
@@ -73,16 +85,23 @@ Multiple browser origins can be comma-separated:
 export CORS_ALLOWED_ORIGINS='http://localhost:5173,https://tritonwatch.app'
 ```
 
-`AUTH0_ISSUER` and `AUTH0_AUDIENCE` are identifiers, not secrets. No Auth0 client secret belongs in this service.
+`AUTH0_ISSUER` and `AUTH0_AUDIENCE` are identifiers, not secrets. No Auth0 client secret belongs in either service.
 
-The security implementation is in `services/watchlist-service/src/main/java/app/tritonwatch/watchlist_service/security/SecurityConfig.java`. It:
+The security implementations are in:
 
-- downloads and caches Auth0 public signing keys from `/.well-known/jwks.json` when a token must be verified;
-- validates the JWT signature, expiration/not-before time, exact issuer, and audience;
-- permits unauthenticated health probes;
-- requires `create:watch-requests` for `POST /api/v1/watch-requests`;
-- disables CSRF and server sessions because authentication is a bearer token; and
-- restricts browser CORS to configured origins.
+- `services/watchlist-service/src/main/java/app/tritonwatch/watchlist_service/security/SecurityConfig.java`; and
+- `services/user-service/src/main/java/app/tritonwatch/user_service/security/SecurityConfig.java`.
+
+They:
+
+- download and cache Auth0 public signing keys from `/.well-known/jwks.json` when a token must be verified;
+- validate the JWT signature, expiration/not-before time, exact issuer, and audience;
+- permit unauthenticated health probes;
+- require `create:watch-requests` for `POST /api/v1/watch-requests`;
+- require `read:user-profile` for `GET /api/v1/me`;
+- require `update:user-profile` for `PUT /api/v1/me`, `PUT /api/v1/me/notification-preferences`, and `DELETE /api/v1/me`;
+- disable CSRF and server sessions because authentication is a bearer token; and
+- restrict browser CORS to configured origins.
 
 ## 4. Call the API from a frontend
 
