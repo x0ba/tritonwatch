@@ -1,0 +1,9 @@
+# CLI tools required for Amazon ECS deployment (see docs/deployment-ecs.md).
+# Docker/Buildx is still installed separately (Docker Desktop or Colima).
+#
+# Install: mise trust && mise install
+
+[tools]
+terraform = "1.16.1"
+awscli = "2.36.38"
+"aqua:aws/session-manager-plugin" = "1.2.835.0"
