@@ -51,7 +51,7 @@ export function LandingPage() {
             CSE 100 just opened — 6 seats
           </p>
           <p className="text-sm leading-[18px] text-muted">
-            Advanced Data Structures · Fall 2026 · sent to daniel@ucsd.edu
+            Advanced Data Structures · Fall 2026 · sent to triton@ucsd.edu
           </p>
         </div>
         <span className="shrink-0 font-mono text-[13px] leading-4 text-muted">2:14 AM</span>
