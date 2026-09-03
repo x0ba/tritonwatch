@@ -1,6 +1,7 @@
 package app.tritonwatch.ingestion_service.currentcourseavailability;
 
 import app.tritonwatch.ingestion_service.outbox.OutboxEventWriter;
+import app.tritonwatch.ingestion_service.ucsd.CourseIds;
 import app.tritonwatch.ingestion_service.ucsd.dto.CatalogCourseResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,9 @@ public class CurrentCourseAvailabilityService {
             return;
         }
 
+        String courseId = CourseIds.fromCatalogCourse(course);
         var existing = currentCourseAvailabilityRepository
-                .findByTermAndCourseId(course.termCode(), course.moduleCode());
+                .findByTermAndCourseId(course.termCode(), courseId);
 
         if (existing.isEmpty()) {
             currentCourseAvailabilityRepository.save(CurrentCourseAvailability.from(course));

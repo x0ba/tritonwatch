@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record CatalogCourseResponse(
         @JsonProperty("term_code") String termCode,
+        @JsonProperty("subject_code") String subjectCode,
+        @JsonProperty("course_code") String courseCode,
         @JsonProperty("module_code") String moduleCode,
         @JsonProperty("module_name") String moduleName,
         @JsonProperty("open_seat_count") int openSeatCount,

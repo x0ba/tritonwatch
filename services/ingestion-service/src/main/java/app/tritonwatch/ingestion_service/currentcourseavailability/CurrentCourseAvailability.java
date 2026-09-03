@@ -1,5 +1,6 @@
 package app.tritonwatch.ingestion_service.currentcourseavailability;
 
+import app.tritonwatch.ingestion_service.ucsd.CourseIds;
 import app.tritonwatch.ingestion_service.ucsd.dto.CatalogCourseResponse;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -40,7 +41,7 @@ public class CurrentCourseAvailability {
 
         availability.setId(UUID.randomUUID());
         availability.setTerm(course.termCode());
-        availability.setCourseId(course.moduleCode());
+        availability.setCourseId(CourseIds.fromCatalogCourse(course));
         availability.setOpenSeatCount(course.openSeatCount());
         availability.setOpenPackageCount(course.openPackageCount());
 

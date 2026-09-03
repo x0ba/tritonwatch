@@ -7,7 +7,7 @@ WIP: App that alerts students via email or text when their UCSD courses open up.
 - [tldraw diagram](https://www.tldraw.com/f/uMOnB2d7simw__NtL01GR?d=v-184.603.1179.812.page)
 - `user-service` — user profiles and notification preferences (port `8081`)
 - `watchlist-service` — watch requests and watch-created events (port `8082`)
-- `ingestion-service` — tracking and UCSD polling (port `8083`)
+- `ingestion-service` — tracking, UCSD polling, and weekly course catalog (port `8083`)
 - `notification-service` — subscriptions and notifications (port `8084`)
 - `shared/event-contracts` — the versioned event payloads and topic constants
 
@@ -49,7 +49,18 @@ cd services/watchlist-service
 
 Most runtime settings have local defaults and can be overridden with environment variables, including `DATABASE_URL`,
 `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `KAFKA_BOOTSTRAP_SERVERS`, and `SERVER_PORT`. Ingestion also accepts
-`INGESTION_POLL_INTERVAL` and `UCSD_API_BASE_URL`.
+`INGESTION_POLL_INTERVAL`, `UCSD_API_BASE_URL`, `CATALOG_SYNC_CRON` (default Monday 05:00 UTC), and
+`CATALOG_SYNC_ON_STARTUP` (syncs the full term catalog when empty).
+
+## Course catalog API
+
+`ingestion-service` keeps an internal UCSD course catalog (refreshed weekly from Class Planner) and exposes:
+
+- `GET /api/v1/catalog/terms` — configured terms
+- `GET /api/v1/catalog/courses?term=FA26&q=CSE` — search by course code or title
+- `POST /api/v1/catalog/sync` — force a catalog refresh (local/ops)
+
+The frontend add-watch picker uses these endpoints via `VITE_CATALOG_API_BASE_URL` (default `http://localhost:8083`).
 
 `watchlist-service` and `user-service` are Auth0-protected resource servers and also require `AUTH0_ISSUER` and
 `AUTH0_AUDIENCE`.
