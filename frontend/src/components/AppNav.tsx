@@ -46,9 +46,6 @@ export function MarketingNav() {
     <header className="flex items-center justify-between px-18 py-[26px]">
       <Logo />
       <div className="flex items-center gap-7">
-        <a href="#how-it-works" className="text-sm leading-[18px] text-muted">
-          How it works
-        </a>
         {isSignedIn ? (
           <Link to="/watchlist" className="text-sm leading-[18px] text-ink">
             Watchlist
