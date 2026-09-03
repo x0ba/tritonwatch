@@ -14,7 +14,7 @@ acme_email       = "admin@example.com"
 
 auth0_issuer         = "https://example.us.auth0.com/"
 auth0_audience       = "https://api.example.com"
-cors_allowed_origins = "https://example.com"
+cors_allowed_origins = "https://example.com,http://localhost:5173"
 
 # Set this when the domain is hosted in Route 53. Otherwise create the A record yourself.
 route53_zone_id = null

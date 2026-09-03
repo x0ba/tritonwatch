@@ -32,5 +32,18 @@
 		}
 	}
 
+	handle /health/ingestion {
+		rewrite * /actuator/health
+		reverse_proxy ingestion-service:8083
+	}
+
+	@catalog_api path /api/v1/catalog /api/v1/catalog/*
+	handle @catalog_api {
+		reverse_proxy ingestion-service:8083 {
+			health_uri /actuator/health
+			health_interval 30s
+		}
+	}
+
 	respond "Not found" 404
 }

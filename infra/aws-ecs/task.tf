@@ -249,6 +249,7 @@ resource "aws_ecs_task_definition" "application" {
         { name = "KAFKA_BOOTSTRAP_SERVERS", value = "kafka:29092" },
         { name = "INGESTION_POLL_INTERVAL", value = var.ingestion_poll_interval },
         { name = "UCSD_API_BASE_URL", value = var.ucsd_api_base_url },
+        { name = "CORS_ALLOWED_ORIGINS", value = var.cors_allowed_origins },
         { name = "JAVA_TOOL_OPTIONS", value = local.java_tool_options },
       ]
       secrets = [{
@@ -315,10 +316,11 @@ resource "aws_ecs_task_definition" "application" {
       cpu               = 64
       memory            = 128
       memoryReservation = 64
-      links             = ["user-service", "watchlist-service"]
+      links             = ["user-service", "watchlist-service", "ingestion-service"]
       dependsOn = [
         { containerName = "user-service", condition = "HEALTHY" },
         { containerName = "watchlist-service", condition = "HEALTHY" },
+        { containerName = "ingestion-service", condition = "HEALTHY" },
       ]
       environment = [
         { name = "API_DOMAIN", value = var.api_domain_name },

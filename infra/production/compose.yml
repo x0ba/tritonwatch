@@ -159,6 +159,7 @@ services:
       DATABASE_PASSWORD: ${INGESTION_DATABASE_PASSWORD:?INGESTION_DATABASE_PASSWORD is required}
       INGESTION_POLL_INTERVAL: ${INGESTION_POLL_INTERVAL:-2m}
       UCSD_API_BASE_URL: ${UCSD_API_BASE_URL:-https://classplanner.apps.ucsd.edu}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS is required}
     depends_on:
       postgres:
         condition: service_healthy
@@ -212,6 +213,8 @@ services:
       user-service:
         condition: service_healthy
       watchlist-service:
+        condition: service_healthy
+      ingestion-service:
         condition: service_healthy
     ports:
       - "80:80"
