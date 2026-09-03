@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tritonwatch — Frontend design directions</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#111;color:#EEE;font-family:Inter,sans-serif;padding:80px 40px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto}
+  .mono{font-family:'Geist Mono',monospace}
+  h1{font-size:44px;letter-spacing:-.03em;font-weight:500}
+  a{color:inherit;text-decoration:none}
+  .card{display:flex;gap:28px;padding:30px;border:1px solid #2A2A2A;border-radius:8px;margin-top:20px;align-items:center}
+  .card:hover{border-color:#555}
+  .sw{width:120px;height:120px;flex-shrink:0;border-radius:6px;display:flex;flex-wrap:wrap;overflow:hidden}
+  .sw span{width:50%;height:50%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mono" style="font-size:12px;letter-spacing:.14em;color:#777">TRITONWATCH · UCSD COURSE SEAT ALERTS</div>
+  <h1 style="margin-top:14px">Three frontend directions</h1>
+  <p style="color:#999;font-size:17px;line-height:28px;margin-top:14px;max-width:640px">Each file contains seven surfaces: landing, sign-in, watchlist, empty state, catalog search, alerts &amp; account settings, and a mobile pair showing the seat-open moment.</p>
+
+  <a class="card" href="directions/a-reading-room.html">
+    <div class="sw"><span style="background:#F2EFE8"></span><span style="background:#14120E"></span><span style="background:#7A2B22"></span><span style="background:#DCD6C7"></span></div>
+    <div>
+      <div class="mono" style="font-size:11px;letter-spacing:.14em;color:#777">DIRECTION A</div>
+      <div style="font-size:26px;margin-top:8px;letter-spacing:-.02em">Reading Room</div>
+      <p style="color:#999;font-size:15px;line-height:24px;margin-top:8px">Bookish and calm. Plaster ground, ink serif headlines, hairline rules instead of cards, one oxblood accent. Reads like a printed course register — the most obviously trustworthy of the three.</p>
+    </div>
+  </a>
+
+  <a class="card" href="directions/b-instrument.html">
+    <div class="sw"><span style="background:#0B0C0D"></span><span style="background:#FFB000"></span><span style="background:#15181A"></span><span style="background:#4FD18B"></span></div>
+    <div>
+      <div class="mono" style="font-size:11px;letter-spacing:.14em;color:#777">DIRECTION B</div>
+      <div style="font-size:26px;margin-top:8px;letter-spacing:-.02em">Instrument</div>
+      <p style="color:#999;font-size:15px;line-height:24px;margin-top:8px">A dark monitoring console. Amber LEDs, mono readouts, live poll ticker and an event log. Honest about what the backend actually is — a poller that fires alerts.</p>
+    </div>
+  </a>
+
+  <a class="card" href="directions/c-signage.html">
+    <div class="sw"><span style="background:#FFFFFF"></span><span style="background:#FFD400"></span><span style="background:#101010"></span><span style="background:#F2F2F0"></span></div>
+    <div>
+      <div class="mono" style="font-size:11px;letter-spacing:.14em;color:#777">DIRECTION C</div>
+      <div style="font-size:26px;margin-top:8px;letter-spacing:-.02em">Signage</div>
+      <p style="color:#999;font-size:15px;line-height:24px;margin-top:8px">Campus-flyer energy. Chrome yellow, heavy ink rules, offset shadows, oversized numerals. The loudest and most student-feeling — highest personality, still legible and simple.</p>
+    </div>
+  </a>
+</div>
+</body>
+</html>

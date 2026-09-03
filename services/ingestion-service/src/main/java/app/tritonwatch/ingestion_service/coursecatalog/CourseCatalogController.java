@@ -54,11 +54,8 @@ public class CourseCatalogController {
         return new TermsApiResponse(currentTerm, terms);
     }
 
-    /**
-     * Manual refresh for local/ops use. Weekly cron covers production.
-     */
     @PostMapping("/sync")
-    public ResponseEntity<Map<String, Object>> syncNow() {
+    public ResponseEntity<Map<String, Object>> manualOpsSync() {
         int count = courseCatalogSyncService.syncCurrentTerm();
         return ResponseEntity.ok(Map.of(
                 "synced", count,

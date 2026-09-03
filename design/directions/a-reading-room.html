@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tritonwatch — Direction A · Reading Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..700&family=Inter:wght@300..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --plaster:#F2EFE8; --paper:#FAF8F3; --ink:#14120E; --graphite:#5F5A4F;
+    --rule:#DCD6C7; --faint:#C4BCA8; --oxblood:#7A2B22; --sage:#3E5B45;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#DFDACE;font-family:Inter,sans-serif;padding:64px 0 120px;-webkit-font-smoothing:antialiased}
+  .label{width:1440px;margin:0 auto 14px;font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:.14em;color:#8A8377;text-transform:uppercase}
+  .frame{width:1440px;margin:0 auto 72px;background:var(--plaster);overflow:hidden}
+  .frame.mobile{width:390px}
+  .serif{font-family:Newsreader,serif;letter-spacing:-.015em}
+  .mono{font-family:'Geist Mono',monospace}
+  .rule{border-bottom:1px solid var(--rule)}
+  .row{display:flex;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:1px solid var(--ink);border-radius:999px;font-size:14px;font-weight:500;color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:15px 28px;background:var(--ink);color:var(--paper);border-radius:999px;font-size:15px;font-weight:500}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .eyebrow{font-family:'Geist Mono',monospace;font-size:12px;font-weight:500;letter-spacing:.14em;color:var(--oxblood)}
+  .sect-head{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:22px;border-bottom:1px solid var(--ink)}
+  .muted{color:var(--graphite)}
+  .card{background:var(--paper);border:1px solid var(--rule);border-radius:4px}
+  input,textarea{font:inherit;color:inherit;background:transparent;border:0;outline:0}
+</style>
+</head>
+<body>
+
+<div class="label">A1 · Landing</div>
+<div class="frame">
+  <div class="row rule" style="justify-content:space-between;padding:26px 72px">
+    <div class="row" style="gap:12px">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="#14120E" stroke-width="1.5"/><circle cx="11" cy="11" r="3.2" fill="#7A2B22"/></svg>
+      <span class="serif" style="font-size:21px;font-weight:500">Tritonwatch</span>
+    </div>
+    <div class="row" style="gap:36px;font-size:14px">
+      <span class="muted">How it works</span><span class="muted">Course catalog</span><span class="muted">FAQ</span>
+      <span class="pill">Sign in</span>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:96px;padding:92px 72px 84px">
+    <div style="width:700px;flex-shrink:0">
+      <div class="eyebrow">FOR UC SAN DIEGO STUDENTS</div>
+      <h1 class="serif" style="font-size:82px;font-weight:400;line-height:82px;margin:26px 0 26px">A seat opens at 2:14&nbsp;a.m. You hear about it at 2:16.</h1>
+      <p class="muted" style="font-size:18px;line-height:30px;width:520px">Tritonwatch checks the Class Planner every two minutes and emails or texts you the moment a course you're waiting on has room. Then you go enroll in WebReg.</p>
+      <div class="row" style="gap:20px;margin-top:34px">
+        <span class="btn">Start watching a course
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="#FAF8F3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="muted" style="font-size:14px">Free. No spam. Not affiliated with UC San Diego.</span>
+      </div>
+    </div>
+
+    <div class="card" style="width:388px;flex-shrink:0;align-self:flex-start">
+      <div class="row rule" style="justify-content:space-between;padding:15px 22px">
+        <span class="mono muted" style="font-size:11px;letter-spacing:.12em">EMAIL ALERT</span>
+        <span class="mono muted" style="font-size:11px">02:16 AM</span>
+      </div>
+      <div class="rule" style="padding:24px 22px 20px">
+        <div class="serif" style="font-size:27px">Seat open: CSE 100</div>
+        <div class="muted" style="font-size:14px;margin-top:6px">Advanced Data Structures · Fall 2026</div>
+      </div>
+      <div class="row rule" style="align-items:stretch">
+        <div style="flex:1;padding:18px 22px;border-right:1px solid var(--rule)">
+          <div class="mono muted" style="font-size:11px;letter-spacing:.1em">OPEN SEATS</div>
+          <div class="serif" style="font-size:40px;line-height:46px;color:var(--oxblood)">6</div>
+        </div>
+        <div style="flex:1;padding:18px 22px">
+          <div class="mono muted" style="font-size:11px;letter-spacing:.1em">SECTIONS</div>
+          <div class="serif" style="font-size:40px;line-height:46px">2</div>
+        </div>
+      </div>
+      <div style="padding:20px 22px">
+        <p class="muted" style="font-size:13px;line-height:21px">Enroll quickly — seats at this hour rarely last more than a few minutes.</p>
+        <div style="font-size:14px;font-weight:500;color:var(--oxblood);margin-top:14px">Open WebReg →</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:0 72px 90px">
+    <div class="sect-head">
+      <span class="mono" style="font-size:12px;font-weight:500;letter-spacing:.14em">HOW IT WORKS</span>
+      <span class="muted" style="font-size:14px">Three steps, then you can forget about it</span>
+    </div>
+    <div style="display:flex;gap:40px;padding:32px 0;border-bottom:1px solid var(--rule)">
+      <span class="serif" style="font-size:34px;color:var(--faint);width:56px;flex-shrink:0">01</span>
+      <span class="serif" style="font-size:30px;line-height:38px;width:340px;flex-shrink:0">Pick the course</span>
+      <span class="muted" style="font-size:16px;line-height:28px;width:520px">Search the live UCSD catalog by code or title, choose your term, and add it. Duplicate watches are ignored, so add freely.</span>
+    </div>
+    <div style="display:flex;gap:40px;padding:32px 0;border-bottom:1px solid var(--rule)">
+      <span class="serif" style="font-size:34px;color:var(--faint);width:56px;flex-shrink:0">02</span>
+      <span class="serif" style="font-size:30px;line-height:38px;width:340px;flex-shrink:0">We watch it every two minutes</span>
+      <span class="muted" style="font-size:16px;line-height:28px;width:520px">Around the clock, through the whole enrollment window. You never refresh anything, and you never sit on WebReg at 3 a.m.</span>
+    </div>
+    <div style="display:flex;gap:40px;padding:32px 0;border-bottom:1px solid var(--rule)">
+      <span class="serif" style="font-size:34px;color:var(--faint);width:56px;flex-shrink:0">03</span>
+      <span class="serif" style="font-size:30px;line-height:38px;width:340px;flex-shrink:0">You get an email or a text</span>
+      <span class="muted" style="font-size:16px;line-height:28px;width:520px">The alert names the course, the term, and how many seats opened. Verify your contact once and choose either channel — or both.</span>
+    </div>
+  </div>
+
+  <div class="row" style="background:var(--ink);color:var(--paper);padding:52px 72px;justify-content:space-between">
+    <div>
+      <div class="serif" style="font-size:44px">2 min</div>
+      <div class="mono" style="font-size:11px;letter-spacing:.12em;color:#9C958A;margin-top:6px">POLL INTERVAL</div>
+    </div>
+    <div>
+      <div class="serif" style="font-size:44px">14,200</div>
+      <div class="mono" style="font-size:11px;letter-spacing:.12em;color:#9C958A;margin-top:6px">COURSES IN CATALOG</div>
+    </div>
+    <div>
+      <div class="serif" style="font-size:44px">Email + SMS</div>
+      <div class="mono" style="font-size:11px;letter-spacing:.12em;color:#9C958A;margin-top:6px">DELIVERY CHANNELS</div>
+    </div>
+    <div>
+      <div class="serif" style="font-size:44px">$0</div>
+      <div class="mono" style="font-size:11px;letter-spacing:.12em;color:#9C958A;margin-top:6px">COST, ALWAYS</div>
+    </div>
+  </div>
+
+  <div class="row" style="justify-content:space-between;padding:34px 72px;font-size:13px">
+    <span class="muted">Built by a UCSD student. Not affiliated with UC San Diego.</span>
+    <span class="row muted" style="gap:28px"><span>Privacy</span><span>SMS terms</span><span>Status</span></span>
+  </div>
+</div>
+
+
+<div class="label">A2 · Sign in</div>
+<div class="frame" style="display:flex;height:900px">
+  <div style="width:560px;flex-shrink:0;background:var(--ink);color:var(--paper);padding:56px;display:flex;flex-direction:column;justify-content:space-between">
+    <div class="row" style="gap:12px">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="#FAF8F3" stroke-width="1.5"/><circle cx="11" cy="11" r="3.2" fill="#C4675C"/></svg>
+      <span class="serif" style="font-size:21px;font-weight:500">Tritonwatch</span>
+    </div>
+    <div>
+      <div class="serif" style="font-size:46px;line-height:54px">You'll be watching a course about thirty seconds from now.</div>
+      <div style="font-size:15px;line-height:26px;color:#9C958A;margin-top:24px;width:400px">Sign in with your UCSD email. We create your profile from your Clerk account — nothing else to fill in.</div>
+    </div>
+    <div class="card" style="background:#1E1B16;border-color:#33302A;padding:20px 22px">
+      <div class="mono" style="font-size:11px;letter-spacing:.12em;color:#9C958A">LAST ALERT SENT</div>
+      <div class="serif" style="font-size:24px;margin-top:8px">MATH 20C · 3 seats</div>
+      <div style="font-size:13px;color:#9C958A;margin-top:4px">4 minutes ago</div>
+    </div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <div style="width:400px">
+      <div class="eyebrow">WELCOME BACK</div>
+      <div class="serif" style="font-size:40px;margin:16px 0 8px">Sign in</div>
+      <div class="muted" style="font-size:15px;line-height:24px">Use the same address you want alerts sent to.</div>
+
+      <div class="card row" style="gap:12px;padding:14px 18px;margin-top:32px;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.6 9.2c0-.6-.1-1.2-.2-1.8H9v3.4h4.8a4.1 4.1 0 0 1-1.8 2.7v2.2h2.9c1.7-1.6 2.7-3.9 2.7-6.5z"/><path fill="#34A853" d="M9 18c2.4 0 4.5-.8 6-2.2l-2.9-2.2c-.8.5-1.8.9-3.1.9-2.4 0-4.4-1.6-5.1-3.8H.9v2.3A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.9 10.7a5.4 5.4 0 0 1 0-3.4V5H.9a9 9 0 0 0 0 8l3-2.3z"/><path fill="#EA4335" d="M9 3.6c1.3 0 2.5.5 3.4 1.3l2.6-2.6A9 9 0 0 0 .9 5l3 2.3C4.6 5.2 6.6 3.6 9 3.6z"/></svg>
+        <span style="font-size:15px;font-weight:500">Continue with Google</span>
+      </div>
+
+      <div class="row" style="gap:16px;margin:26px 0"><span style="flex:1;height:1px;background:var(--rule)"></span><span class="mono muted" style="font-size:11px;letter-spacing:.1em">OR</span><span style="flex:1;height:1px;background:var(--rule)"></span></div>
+
+      <div class="mono muted" style="font-size:11px;letter-spacing:.1em">EMAIL ADDRESS</div>
+      <div class="card" style="padding:14px 18px;margin-top:8px;font-size:15px">tritonfan@ucsd.edu</div>
+      <div class="mono muted" style="font-size:11px;letter-spacing:.1em;margin-top:20px">PASSWORD</div>
+      <div class="card" style="padding:14px 18px;margin-top:8px;font-size:15px;letter-spacing:.2em">••••••••••</div>
+
+      <div class="btn" style="width:100%;justify-content:center;margin-top:26px">Continue</div>
+      <div class="muted" style="font-size:14px;text-align:center;margin-top:20px">New here? <span style="color:var(--oxblood);font-weight:500">Create an account</span></div>
+    </div>
+  </div>
+</div>
+
+
+<div class="label">A3 · Watchlist</div>
+<div class="frame">
+  <div class="row rule" style="justify-content:space-between;padding:20px 56px">
+    <div class="row" style="gap:40px">
+      <div class="row" style="gap:12px">
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="#14120E" stroke-width="1.5"/><circle cx="11" cy="11" r="3.2" fill="#7A2B22"/></svg>
+        <span class="serif" style="font-size:19px;font-weight:500">Tritonwatch</span>
+      </div>
+      <div class="row" style="gap:28px;font-size:14px">
+        <span style="font-weight:500;border-bottom:1.5px solid var(--ink);padding-bottom:2px">Watchlist</span>
+        <span class="muted">Alerts</span>
+        <span class="muted">Account</span>
+      </div>
+    </div>
+    <div class="row" style="gap:16px">
+      <span class="mono muted" style="font-size:12px">tritonfan@ucsd.edu</span>
+      <div style="width:32px;height:32px;border-radius:999px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500">D</div>
+    </div>
+  </div>
+
+  <div class="row" style="justify-content:space-between;align-items:flex-end;padding:44px 56px 26px">
+    <div>
+      <div class="eyebrow">FALL 2026 · FA26</div>
+      <div class="serif" style="font-size:52px;margin-top:12px">Your watchlist</div>
+    </div>
+    <div class="row" style="gap:14px">
+      <span class="pill">Change term</span>
+      <span class="btn">Add a course</span>
+    </div>
+  </div>
+
+  <div class="row" style="justify-content:space-between;padding:14px 56px;background:var(--paper);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+    <span class="row mono" style="gap:10px;font-size:12px;color:var(--sage)">
+      <svg width="8" height="8"><circle cx="4" cy="4" r="4" fill="#3E5B45"/></svg> LIVE · LAST CHECKED 41 SECONDS AGO
+    </span>
+    <span class="mono muted" style="font-size:12px">4 COURSES WATCHED · ALERTS TO EMAIL + SMS</span>
+  </div>
+
+  <div class="row rule" style="padding:16px 56px;gap:24px" >
+    <span class="mono muted" style="font-size:11px;letter-spacing:.1em;width:132px;flex-shrink:0">COURSE</span>
+    <span class="mono muted" style="font-size:11px;letter-spacing:.1em;flex:1">TITLE</span>
+    <span class="mono muted" style="font-size:11px;letter-spacing:.1em;width:110px;flex-shrink:0;text-align:right">OPEN SEATS</span>
+    <span class="mono muted" style="font-size:11px;letter-spacing:.1em;width:100px;flex-shrink:0;text-align:right">WAITLIST</span>
+    <span class="mono muted" style="font-size:11px;letter-spacing:.1em;width:130px;flex-shrink:0;text-align:right">WATCHING SINCE</span>
+    <span style="width:88px;flex-shrink:0"></span>
+  </div>
+
+  <div class="row" style="padding:22px 56px;gap:24px;background:#FBF3F0;border-bottom:1px solid var(--rule)">
+    <span class="mono" style="font-size:15px;font-weight:500;width:132px;flex-shrink:0;color:var(--oxblood)">CSE 100</span>
+    <span style="flex:1;font-size:15px">Advanced Data Structures
+      <span class="mono" style="font-size:10px;letter-spacing:.1em;color:#FAF8F3;background:var(--oxblood);padding:3px 7px;border-radius:3px;margin-left:10px;vertical-align:middle">SEATS OPEN</span>
+    </span>
+    <span class="serif" style="font-size:26px;width:110px;flex-shrink:0;text-align:right;color:var(--oxblood)">6</span>
+    <span class="serif muted" style="font-size:26px;width:100px;flex-shrink:0;text-align:right">42</span>
+    <span class="muted" style="font-size:14px;width:130px;flex-shrink:0;text-align:right">Aug 28</span>
+    <span class="mono" style="font-size:12px;width:88px;flex-shrink:0;text-align:right;color:var(--oxblood);font-weight:500">ENROLL</span>
+  </div>
+
+  <div class="row" style="padding:22px 56px;gap:24px;border-bottom:1px solid var(--rule)">
+    <span class="mono" style="font-size:15px;font-weight:500;width:132px;flex-shrink:0">MATH 20C</span>
+    <span style="flex:1;font-size:15px">Calculus and Analytic Geometry</span>
+    <span class="serif muted" style="font-size:26px;width:110px;flex-shrink:0;text-align:right">0</span>
+    <span class="serif muted" style="font-size:26px;width:100px;flex-shrink:0;text-align:right">18</span>
+    <span class="muted" style="font-size:14px;width:130px;flex-shrink:0;text-align:right">Aug 28</span>
+    <span class="mono muted" style="font-size:12px;width:88px;flex-shrink:0;text-align:right">REMOVE</span>
+  </div>
+  <div class="row" style="padding:22px 56px;gap:24px;border-bottom:1px solid var(--rule)">
+    <span class="mono" style="font-size:15px;font-weight:500;width:132px;flex-shrink:0">COGS 108</span>
+    <span style="flex:1;font-size:15px">Data Science in Practice</span>
+    <span class="serif muted" style="font-size:26px;width:110px;flex-shrink:0;text-align:right">0</span>
+    <span class="serif muted" style="font-size:26px;width:100px;flex-shrink:0;text-align:right">96</span>
+    <span class="muted" style="font-size:14px;width:130px;flex-shrink:0;text-align:right">Sep 01</span>
+    <span class="mono muted" style="font-size:12px;width:88px;flex-shrink:0;text-align:right">REMOVE</span>
+  </div>
+  <div class="row" style="padding:22px 56px;gap:24px;border-bottom:1px solid var(--rule)">
+    <span class="mono" style="font-size:15px;font-weight:500;width:132px;flex-shrink:0">POLI 100O</span>
+    <span style="flex:1;font-size:15px">Politics of Immigration</span>
+    <span class="serif muted" style="font-size:26px;width:110px;flex-shrink:0;text-align:right">0</span>
+    <span class="serif muted" style="font-size:26px;width:100px;flex-shrink:0;text-align:right">7</span>
+    <span class="muted" style="font-size:14px;width:130px;flex-shrink:0;text-align:right">Sep 02</span>
+    <span class="mono muted" style="font-size:12px;width:88px;flex-shrink:0;text-align:right">REMOVE</span>
+  </div>
+
+  <div style="padding:56px 56px 72px">
+    <div class="sect-head">
+      <span class="mono" style="font-size:12px;font-weight:500;letter-spacing:.14em">RECENT ALERTS</span>
+      <span class="muted" style="font-size:14px">Everything we've sent you</span>
+    </div>
+    <div class="row" style="gap:24px;padding:20px 0;border-bottom:1px solid var(--rule)">
+      <span class="mono muted" style="font-size:12px;width:132px;flex-shrink:0">02:16 · SEP 02</span>
+      <span style="flex:1;font-size:15px"><span class="mono" style="font-weight:500">CSE 100</span> — 6 seats opened across 2 sections</span>
+      <span class="mono" style="font-size:11px;letter-spacing:.1em;color:var(--sage);width:150px;flex-shrink:0;text-align:right">EMAIL + SMS SENT</span>
+    </div>
+    <div class="row" style="gap:24px;padding:20px 0;border-bottom:1px solid var(--rule)">
+      <span class="mono muted" style="font-size:12px;width:132px;flex-shrink:0">19:04 · AUG 30</span>
+      <span style="flex:1;font-size:15px"><span class="mono" style="font-weight:500">MATH 20C</span> — 3 seats opened across 1 section</span>
+      <span class="mono" style="font-size:11px;letter-spacing:.1em;color:var(--sage);width:150px;flex-shrink:0;text-align:right">EMAIL SENT</span>
+    </div>
+  </div>
+</div>
+
+
+<div class="label">A4 · Watchlist — empty state</div>
+<div class="frame" style="height:760px;display:flex;flex-direction:column">
+  <div class="row rule" style="justify-content:space-between;padding:20px 56px">
+    <div class="row" style="gap:40px">
+      <div class="row" style="gap:12px">
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="#14120E" stroke-width="1.5"/><circle cx="11" cy="11" r="3.2" fill="#7A2B22"/></svg>
+        <span class="serif" style="font-size:19px;font-weight:500">Tritonwatch</span>
+      </div>
+      <div class="row" style="gap:28px;font-size:14px">
+        <span style="font-weight:500;border-bottom:1.5px solid var(--ink);padding-bottom:2px">Watchlist</span>
+        <span class="muted">Alerts</span><span class="muted">Account</span>
+      </div>
+    </div>
+    <div style="width:32px;height:32px;border-radius:999px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500">D</div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <div style="width:520px;text-align:center">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style="margin-bottom:28px"><circle cx="26" cy="26" r="25" stroke="#C4BCA8" stroke-width="1.5" stroke-dasharray="4 5"/><circle cx="26" cy="26" r="6" fill="#DCD6C7"/></svg>
+      <div class="serif" style="font-size:42px;line-height:48px">Nothing on watch yet</div>
+      <p class="muted" style="font-size:16px;line-height:28px;margin:16px 0 30px">Add the course that's blocking your schedule. We'll start checking it within two minutes and won't stop until you say so.</p>
+      <span class="btn">Find a course</span>
+      <div class="mono muted" style="font-size:11px;letter-spacing:.1em;margin-top:36px">TIP · YOU CAN WATCH AS MANY COURSES AS YOU LIKE</div>
+    </div>
+  </div>
+</div>
+
+
+<div class="label">A5 · Add a course</div>
+<div class="frame">
+  <div class="row rule" style="justify-content:space-between;padding:20px 56px">
+    <div class="row" style="gap:40px">
+      <div class="row" style="gap:12px">
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="#14120E" stroke-width="1.5"/><circle cx="11" cy="11" r="3.2" fill="#7A2B22"/></svg>
+        <span class="serif" style="font-size:19px;font-weight:500">Tritonwatch</span>
+      </div>
+      <div class="row" style="gap:28px;font-size:14px">
+        <span style="font-weight:500;border-bottom:1.5px solid var(--ink);padding-bottom:2px">Watchlist</span>
+        <span class="muted">Alerts</span><span class="muted">Account</span>
+      </div>
+    </div>
+    <div style="width:32px;height:32px;border-radius:999px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500">D</div>
+  </div>
+
+  <div style="padding:44px 56px 0">
+    <span class="mono muted" style="font-size:12px">← BACK TO WATCHLIST</span>
+    <div class="serif" style="font-size:52px;margin:18px 0 34px">Add a course</div>
+  </div>
+
+  <div class="row" style="gap:16px;padding:0 56px 28px">
+    <div class="card row" style="flex:1;gap:14px;padding:17px 22px">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="6" stroke="#5F5A4F" stroke-width="1.5"/><path d="m12.5 12.5 3 3" stroke="#5F5A4F" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span style="font-size:16px">CSE 1</span><span style="width:1px;height:18px;background:var(--ink)"></span>
+    </div>
+    <div class="card row" style="gap:14px;padding:17px 22px;width:220px;justify-content:space-between">
+      <span style="font-size:16px">Fall 2026</span>
+      <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="m1 1 5 5 5-5" stroke="#5F5A4F" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <div class="row" style="justify-content:space-between;padding:0 56px 14px">
+    <span class="mono muted" style="font-size:11px;letter-spacing:.1em">12 RESULTS IN FA26</span>
+    <span class="mono muted" style="font-size:11px;letter-spacing:.1em">LIVE FROM UCSD CLASS PLANNER</span>
+  </div>
+
+  <div style="border-top:1px solid var(--ink)">
+    <div class="row" style="padding:20px 56px;gap:24px;border-bottom:1px solid var(--rule);background:var(--paper)">
+      <span class="mono" style="font-size:15px;font-weight:500;width:132px;flex-shrink:0">CSE 100</span>
+      <span style="flex:1;font-size:15px">Advanced Data Structures</span>
+      <span class="mono muted" style="font-size:13px;width:120px;flex-shrink:0;text-align:right">0 open</span>
+      <span class="mono muted" style="font-size:13px;width:120px;flex-shrink:0;text-align:right">42 waitlist</span>
+      <span class="row" style="width:120px;flex-shrink:0;justify-content:flex-end">
+        <span class="mono" style="font-size:11px;letter-spacing:.1em;color:var(--sage)">✓ WATCHING</span>
+      </span>
+    </div>
+    <div class="row" style="padding:20px 56px;gap:24px;border-bottom:1px solid var(--rule)">
+      <span class="mono" style="font-size:15px;font-weight:500;width:132px;flex-shrink:0">CSE 101</span>
+      <span style="flex:1;font-size:15px">Design and Analysis of Algorithms</span>
+      <span class="mono muted" style="font-size:13px;width:120px;flex-shrink:0;text-align:right">0 open</span>
+      <span class="mono muted" style="font-size:13px;width:120px;flex-shrink:0;text-align:right">63 waitlist</span>
+      <span class="row" style="width:120px;flex-shrink:0;justify-content:flex-end"><span class="pill" style="padding:7px 16px;font-size:13px">Watch</span></span>
+    </div>
+    <div class="row" style="padding:20px 56px;gap:24px;border-bottom:1px solid var(--rule)">
+      <span class="mono" style="font-size:15px;font-weight:500;width:132px;flex-shrink:0">CSE 110</span>
+      <span style="flex:1;font-size:15px">Software Engineering</span>
+      <span class="mono" style="font-size:13px;width:120px;flex-shrink:0;text-align:right;color:var(--sage)">4 open</span>
+      <span class="mono muted" style="font-size:13px;width:120px;flex-shrink:0;text-align:right">0 waitlist</span>
+      <span class="row" style="width:120px;flex-shrink:0;justify-content:flex-end"><span class="pill" style="padding:7px 16px;font-size:13px">Watch</span></span>
+    </div>
+    <div class="row" style="padding:20px 56px;gap:24px;border-bottom:1px solid var(--rule)">
+      <span class="mono" style="font-size:15px;font-weight:500;width:132px;flex-shrink:0">CSE 120</span>
+      <span style="flex:1;font-size:15px">Principles of Computer Operating Systems</span>
+      <span class="mono muted" style="font-size:13px;width:120px;flex-shrink:0;text-align:right">0 open</span>
+      <span class="mono muted" style="font-size:13px;width:120px;flex-shrink:0;text-align:right">31 waitlist</span>
+      <span class="row" style="width:120px;flex-shrink:0;justify-content:flex-end"><span class="pill" style="padding:7px 16px;font-size:13px">Watch</span></span>
+    </div>
+    <div class="row" style="padding:20px 56px;gap:24px;border-bottom:1px solid var(--rule)">
+      <span class="mono" style="font-size:15px;font-weight:500;width:132px;flex-shrink:0">CSE 132A</span>
+      <span style="flex:1;font-size:15px">Database System Principles</span>
+      <span class="mono muted" style="font-size:13px;width:120px;flex-shrink:0;text-align:right">0 open</span>
+      <span class="mono muted" style="font-size:13px;width:120px;flex-shrink:0;text-align:right">12 waitlist</span>
+      <span class="row" style="width:120px;flex-shrink:0;justify-content:flex-end"><span class="pill" style="padding:7px 16px;font-size:13px">Watch</span></span>
+    </div>
+  </div>
+
+  <div class="row" style="justify-content:space-between;padding:26px 56px 64px">
+    <span class="muted" style="font-size:14px">Alerts will go to <span class="mono" style="color:var(--ink)">tritonfan@ucsd.edu</span> and <span class="mono" style="color:var(--ink)">+1 (858) 555-0123</span>.</span>
+    <span style="font-size:14px;font-weight:500;color:var(--oxblood)">Change alert settings →</span>
+  </div>
+</div>
+
+
+<div class="label">A6 · Alerts &amp; contacts</div>
+<div class="frame">
+  <div class="row rule" style="justify-content:space-between;padding:20px 56px">
+    <div class="row" style="gap:40px">
+      <div class="row" style="gap:12px">
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="#14120E" stroke-width="1.5"/><circle cx="11" cy="11" r="3.2" fill="#7A2B22"/></svg>
+        <span class="serif" style="font-size:19px;font-weight:500">Tritonwatch</span>
+      </div>
+      <div class="row" style="gap:28px;font-size:14px">
+        <span class="muted">Watchlist</span>
+        <span style="font-weight:500;border-bottom:1.5px solid var(--ink);padding-bottom:2px">Alerts</span>
+        <span class="muted">Account</span>
+      </div>
+    </div>
+    <div style="width:32px;height:32px;border-radius:999px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500">D</div>
+  </div>
+
+  <div style="display:flex;gap:80px;padding:48px 56px 72px">
+    <div style="width:300px;flex-shrink:0">
+      <div class="serif" style="font-size:44px;line-height:50px">Alerts &amp; contacts</div>
+      <p class="muted" style="font-size:15px;line-height:26px;margin-top:16px">Choose how we reach you. Each channel has to be verified once before it can carry alerts.</p>
+      <div class="card" style="padding:18px 20px;margin-top:28px">
+        <div class="mono muted" style="font-size:11px;letter-spacing:.1em">CURRENTLY ACTIVE</div>
+        <div class="row" style="gap:8px;margin-top:12px;font-size:14px"><span style="color:var(--sage)">●</span> Email · verified</div>
+        <div class="row" style="gap:8px;margin-top:8px;font-size:14px" class="muted"><span style="color:var(--faint)">●</span> <span class="muted">SMS · needs verification</span></div>
+      </div>
+    </div>
+
+    <div style="flex:1">
+      <div class="sect-head"><span class="mono" style="font-size:12px;font-weight:500;letter-spacing:.14em">EMAIL</span><span class="mono" style="font-size:11px;letter-spacing:.1em;color:var(--sage)">VERIFIED AUG 28</span></div>
+      <div class="row" style="justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--rule)">
+        <div>
+          <div style="font-size:17px">tritonfan@ucsd.edu</div>
+          <div class="muted" style="font-size:13px;margin-top:5px">Alerts arrive within seconds of a seat opening.</div>
+        </div>
+        <div class="row" style="gap:20px">
+          <span class="mono muted" style="font-size:12px">EDIT</span>
+          <div style="width:46px;height:26px;border-radius:999px;background:var(--ink);display:flex;align-items:center;padding:3px;justify-content:flex-end"><span style="width:20px;height:20px;border-radius:999px;background:var(--paper)"></span></div>
+        </div>
+      </div>
+
+      <div class="sect-head" style="margin-top:44px"><span class="mono" style="font-size:12px;font-weight:500;letter-spacing:.14em">TEXT MESSAGE</span><span class="mono" style="font-size:11px;letter-spacing:.1em;color:var(--oxblood)">NOT VERIFIED</span></div>
+      <div class="row" style="justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--rule)">
+        <div>
+          <div class="mono" style="font-size:17px">+1 (858) 555-0123</div>
+          <div class="muted" style="font-size:13px;margin-top:5px">Standard message rates apply. Reply STOP to opt out at any time.</div>
+        </div>
+        <div class="row" style="gap:20px">
+          <span class="mono muted" style="font-size:12px">EDIT</span>
+          <div style="width:46px;height:26px;border-radius:999px;background:var(--faint);display:flex;align-items:center;padding:3px"><span style="width:20px;height:20px;border-radius:999px;background:var(--paper)"></span></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:26px 28px;margin-top:22px;border-color:var(--oxblood)">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="serif" style="font-size:24px">Enter the code we texted you</div>
+            <div class="muted" style="font-size:14px;margin-top:6px">Sent to +1 (858) 555-0123 · expires in 14:32</div>
+          </div>
+          <span class="mono muted" style="font-size:12px">RESEND</span>
+        </div>
+        <div class="row" style="gap:10px;margin-top:22px">
+          <span class="card mono" style="width:52px;height:60px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--plaster)">4</span>
+          <span class="card mono" style="width:52px;height:60px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--plaster)">1</span>
+          <span class="card mono" style="width:52px;height:60px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--plaster)">9</span>
+          <span class="card mono" style="width:52px;height:60px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--plaster)">2</span>
+          <span class="card mono" style="width:52px;height:60px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--plaster);border-color:var(--ink)">|</span>
+          <span class="card mono" style="width:52px;height:60px;background:var(--plaster)"></span>
+          <span class="btn" style="margin-left:14px">Verify number</span>
+        </div>
+      </div>
+
+      <div class="row" style="gap:14px;align-items:flex-start;padding:26px 0 0">
+        <span style="width:18px;height:18px;border:1.5px solid var(--ink);border-radius:3px;flex-shrink:0;margin-top:2px;background:var(--ink);display:flex;align-items:center;justify-content:center">
+          <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5 4 7.5 10 1" stroke="#FAF8F3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="muted" style="font-size:14px;line-height:23px;width:620px">I agree to receive automated course-availability texts from Tritonwatch at the number above. Consent isn't a condition of using the service. <span style="color:var(--oxblood);font-weight:500">SMS terms (v2.1)</span></span>
+      </div>
+
+      <div class="sect-head" style="margin-top:52px"><span class="mono" style="font-size:12px;font-weight:500;letter-spacing:.14em;color:var(--oxblood)">DELETE ACCOUNT</span></div>
+      <div class="row" style="justify-content:space-between;padding:22px 0">
+        <span class="muted" style="font-size:14px;line-height:23px;width:600px">Removes your profile, every watch, and all contact details. Any pending alerts are cancelled immediately. This can't be undone.</span>
+        <span class="pill" style="border-color:var(--oxblood);color:var(--oxblood)">Delete my account</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="label">A7 · Mobile — watchlist &amp; alert</div>
+<div style="display:flex;gap:48px;justify-content:center;width:1440px;margin:0 auto">
+  <div class="frame mobile" style="height:844px;margin:0">
+    <div class="row" style="justify-content:space-between;padding:14px 24px 6px;font-size:13px;font-weight:600"><span>9:41</span><span class="row" style="gap:5px">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="7" width="3" height="4" rx="1" fill="#14120E"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="#14120E"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="#14120E"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#14120E"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="#14120E" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="#14120E"/><path d="M23 4v4a2 2 0 0 0 0-4z" fill="#14120E" opacity=".4"/></svg>
+    </span></div>
+    <div class="row rule" style="justify-content:space-between;padding:14px 24px">
+      <span class="serif" style="font-size:19px;font-weight:500">Tritonwatch</span>
+      <div style="width:30px;height:30px;border-radius:999px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-size:12px">D</div>
+    </div>
+    <div style="padding:26px 24px 18px">
+      <div class="eyebrow" style="font-size:11px">FALL 2026</div>
+      <div class="serif" style="font-size:36px;margin-top:8px">Your watchlist</div>
+    </div>
+    <div class="row mono" style="gap:9px;font-size:11px;color:var(--sage);padding:11px 24px;background:var(--paper);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+      <svg width="7" height="7"><circle cx="3.5" cy="3.5" r="3.5" fill="#3E5B45"/></svg> LIVE · CHECKED 41s AGO
+    </div>
+    <div style="padding:18px 24px;background:#FBF3F0;border-bottom:1px solid var(--rule)">
+      <div class="row" style="justify-content:space-between">
+        <span class="mono" style="font-size:15px;font-weight:500;color:var(--oxblood)">CSE 100</span>
+        <span class="mono" style="font-size:10px;letter-spacing:.1em;color:#FAF8F3;background:var(--oxblood);padding:3px 7px;border-radius:3px">SEATS OPEN</span>
+      </div>
+      <div style="font-size:14px;margin-top:6px">Advanced Data Structures</div>
+      <div class="row" style="gap:20px;margin-top:12px;align-items:baseline">
+        <span class="serif" style="font-size:30px;color:var(--oxblood)">6</span><span class="mono muted" style="font-size:11px;letter-spacing:.1em">OPEN SEATS</span>
+        <span class="serif muted" style="font-size:30px;margin-left:auto">42</span><span class="mono muted" style="font-size:11px;letter-spacing:.1em">WAITLIST</span>
+      </div>
+    </div>
+    <div style="padding:18px 24px;border-bottom:1px solid var(--rule)">
+      <div class="mono" style="font-size:15px;font-weight:500">MATH 20C</div>
+      <div class="muted" style="font-size:14px;margin-top:6px">Calculus and Analytic Geometry</div>
+      <div class="mono muted" style="font-size:11px;letter-spacing:.1em;margin-top:10px">0 OPEN · 18 WAITLIST</div>
+    </div>
+    <div style="padding:18px 24px;border-bottom:1px solid var(--rule)">
+      <div class="mono" style="font-size:15px;font-weight:500">COGS 108</div>
+      <div class="muted" style="font-size:14px;margin-top:6px">Data Science in Practice</div>
+      <div class="mono muted" style="font-size:11px;letter-spacing:.1em;margin-top:10px">0 OPEN · 96 WAITLIST</div>
+    </div>
+    <div style="padding:24px">
+      <div class="btn" style="width:100%;justify-content:center">Add a course</div>
+    </div>
+  </div>
+
+  <div class="frame mobile" style="height:844px;margin:0;background:var(--ink);display:flex;flex-direction:column">
+    <div class="row" style="justify-content:space-between;padding:14px 24px 6px;font-size:13px;font-weight:600;color:var(--paper)"><span>2:16</span><span class="row" style="gap:5px">
+      <svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="7" width="3" height="4" rx="1" fill="#FAF8F3"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="#FAF8F3"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="#FAF8F3"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#FAF8F3"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3" stroke="#FAF8F3" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="#FAF8F3"/></svg>
+    </span></div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 24px">
+      <div class="serif" style="font-size:74px;color:var(--paper);line-height:74px">2:16</div>
+      <div class="mono" style="font-size:12px;letter-spacing:.14em;color:#9C958A;margin-top:8px">WEDNESDAY, SEPTEMBER 2</div>
+
+      <div class="card" style="background:rgba(250,248,243,.10);border-color:rgba(250,248,243,.18);padding:18px 20px;margin-top:40px;backdrop-filter:blur(8px)">
+        <div class="row" style="gap:9px">
+          <svg width="15" height="15" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="#FAF8F3" stroke-width="1.8"/><circle cx="11" cy="11" r="3.2" fill="#C4675C"/></svg>
+          <span class="mono" style="font-size:11px;letter-spacing:.1em;color:#C9C2B6">TRITONWATCH · now</span>
+        </div>
+        <div class="serif" style="font-size:24px;color:var(--paper);margin-top:12px">Seat open: CSE 100</div>
+        <div style="font-size:14px;line-height:21px;color:#C9C2B6;margin-top:6px">6 seats across 2 sections just opened in Fall 2026. Enroll in WebReg now.</div>
+      </div>
+
+      <div class="card" style="background:rgba(250,248,243,.06);border-color:rgba(250,248,243,.12);padding:16px 20px;margin-top:12px">
+        <div class="mono" style="font-size:11px;letter-spacing:.1em;color:#9C958A">MESSAGES · now</div>
+        <div style="font-size:14px;line-height:21px;color:#C9C2B6;margin-top:8px">Tritonwatch: CSE 100 (FA26) is open — seats 6, packages 2.</div>
+      </div>
+    </div>
+    <div style="padding:0 24px 40px;text-align:center">
+      <div class="mono" style="font-size:11px;letter-spacing:.1em;color:#6E685D">SWIPE UP TO OPEN WEBREG</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
