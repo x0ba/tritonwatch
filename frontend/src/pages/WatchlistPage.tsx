@@ -1,31 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { StatusDot } from "../components/StatusDot";
-import { listCatalogTerms } from "../lib/api";
 import { useAppData, WATCHLIST_REFRESH_INTERVAL_MS } from "../lib/AppDataProvider";
 import { formatCheckedAt, formatWatchingSince } from "../lib/format";
 
 export function WatchlistPage() {
-  const { watches, watchesLoading, watchesError, watchesLastRefreshedAt, refreshWatches } =
-    useAppData();
-  const [termLabel, setTermLabel] = useState("Current term");
-  const [termCode, setTermCode] = useState("");
+  const {
+    watches,
+    watchesLoading,
+    watchesError,
+    watchesLastRefreshedAt,
+    watchesTerm,
+    refreshWatches,
+  } = useAppData();
+  const termLabel = watchesTerm?.label ?? "Current term";
+  const termCode = watchesTerm?.code ?? "";
   const [checkedLabel, setCheckedLabel] = useState(() => formatCheckedAt(watchesLastRefreshedAt));
-
-  useEffect(() => {
-    const controller = new AbortController();
-    void listCatalogTerms(controller.signal)
-      .then((response) => {
-        const current =
-          response.terms.find((term) => term.code === response.currentTerm) ?? response.terms[0];
-        if (current) {
-          setTermLabel(current.label);
-          setTermCode(current.code);
-        }
-      })
-      .catch(() => {});
-    return () => controller.abort();
-  }, []);
 
   useEffect(() => {
     void refreshWatches();

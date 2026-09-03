@@ -10,10 +10,18 @@ import {
   type ReactNode,
 } from "react";
 import { getMe, listCatalogTerms, loadWatchlistItems, upsertMe } from "./api";
-import type { UserProfile, WatchlistItem } from "./types";
+import type { TermOption, UserProfile, WatchlistItem } from "./types";
 import { useAccessToken } from "./useAccessToken";
 
 export const WATCHLIST_REFRESH_INTERVAL_MS = 2 * 60 * 1000;
+
+function termForCatalog(catalog: { currentTerm: string; terms: TermOption[] }): TermOption | null {
+  return (
+    catalog.terms.find((term) => term.code === catalog.currentTerm) ??
+    catalog.terms[0] ??
+    (catalog.currentTerm ? { code: catalog.currentTerm, label: catalog.currentTerm } : null)
+  );
+}
 
 type AppDataContextValue = {
   profile: UserProfile | null;
@@ -25,6 +33,7 @@ type AppDataContextValue = {
   watchesLoading: boolean;
   watchesError: string | null;
   watchesLastRefreshedAt: string | null;
+  watchesTerm: TermOption | null;
   refreshWatches: () => Promise<void>;
   addLocalWatch: (item: WatchlistItem) => void;
 };
@@ -42,6 +51,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [watchesLoading, setWatchesLoading] = useState(false);
   const [watchesError, setWatchesError] = useState<string | null>(null);
   const [watchesLastRefreshedAt, setWatchesLastRefreshedAt] = useState<string | null>(null);
+  const [watchesTerm, setWatchesTerm] = useState<TermOption | null>(null);
   const watchRefreshGeneration = useRef(0);
 
   const refreshProfile = useCallback(async () => {
@@ -75,6 +85,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setWatches([]);
       setWatchesError(null);
       setWatchesLastRefreshedAt(null);
+      setWatchesTerm(null);
       return;
     }
 
@@ -88,6 +99,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         return;
       }
       setWatches(next);
+      setWatchesTerm(termForCatalog(catalog));
       setWatchesLastRefreshedAt(new Date().toISOString());
     } catch (error) {
       if (generation !== watchRefreshGeneration.current) {
@@ -109,6 +121,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setWatches([]);
       setWatchesError(null);
       setWatchesLastRefreshedAt(null);
+      setWatchesTerm(null);
       return;
     }
     void refreshProfile();
@@ -135,6 +148,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       watchesLoading,
       watchesError,
       watchesLastRefreshedAt,
+      watchesTerm,
       refreshWatches,
       addLocalWatch,
     }),
@@ -149,6 +163,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       watchesError,
       watchesLastRefreshedAt,
       watchesLoading,
+      watchesTerm,
     ],
   );
 
