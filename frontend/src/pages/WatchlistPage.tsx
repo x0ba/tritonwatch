@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { StatusDot } from "../components/StatusDot";
 import { listCatalogTerms } from "../lib/api";
-import { useAppData } from "../lib/AppDataProvider";
-import { formatWatchingSince } from "../lib/format";
+import { useAppData, WATCHLIST_REFRESH_INTERVAL_MS } from "../lib/AppDataProvider";
+import { formatCheckedAt, formatWatchingSince } from "../lib/format";
 
 export function WatchlistPage() {
-  const { watches } = useAppData();
+  const { watches, watchesLoading, watchesError, watchesLastRefreshedAt, refreshWatches } =
+    useAppData();
   const [termLabel, setTermLabel] = useState("Current term");
   const [termCode, setTermCode] = useState("");
+  const [checkedLabel, setCheckedLabel] = useState(() => formatCheckedAt(watchesLastRefreshedAt));
 
   useEffect(() => {
     const controller = new AbortController();
@@ -24,6 +26,36 @@ export function WatchlistPage() {
       .catch(() => {});
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    void refreshWatches();
+
+    const intervalId = window.setInterval(() => {
+      void refreshWatches();
+    }, WATCHLIST_REFRESH_INTERVAL_MS);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void refreshWatches();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [refreshWatches]);
+
+  useEffect(() => {
+    const updateLabel = () => setCheckedLabel(formatCheckedAt(watchesLastRefreshedAt));
+    updateLabel();
+    const intervalId = window.setInterval(updateLabel, 15_000);
+    return () => window.clearInterval(intervalId);
+  }, [watchesLastRefreshedAt]);
+
+  const showInitialLoading =
+    watchesLoading && watches.length === 0 && !watchesLastRefreshedAt && !watchesError;
 
   return (
     <div>
@@ -62,7 +94,11 @@ export function WatchlistPage() {
         </div>
       </div>
 
-      {watches.length === 0 ? (
+      {watchesError ? <p className="mx-18 py-6 text-sm text-red-700">{watchesError}</p> : null}
+
+      {showInitialLoading ? (
+        <p className="mx-18 py-10 text-muted">Loading your watchlist…</p>
+      ) : watches.length === 0 ? (
         <p className="mx-18 py-10 text-muted">
           No courses yet.{" "}
           <Link to="/watchlist/new" className="underline">
@@ -73,7 +109,7 @@ export function WatchlistPage() {
       ) : (
         watches.map((watch) => (
           <div
-            key={watch.courseId}
+            key={watch.id ?? `${watch.term}:${watch.courseId}`}
             className="mx-18 flex items-center gap-6 border-b border-line py-[26px]"
           >
             <StatusDot tone={watch.seatsOpen ? "open" : "watching"} />
@@ -110,7 +146,7 @@ export function WatchlistPage() {
       <div className="mx-18 mt-7 flex items-center gap-2">
         <StatusDot tone="live" size="sm" />
         <p className="text-[13px] leading-4 text-muted">
-          Checked against UCSD Class Planner just now · refreshes every 2 minutes
+          Checked against UCSD Class Planner {checkedLabel} · refreshes every 2 minutes
         </p>
       </div>
     </div>

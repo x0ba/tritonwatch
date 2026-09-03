@@ -5,11 +5,16 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface WatchRequestRepository extends JpaRepository<WatchRequest, UUID> {
     Optional<WatchRequest> findByUserIdAndCourseIdAndTerm(String userId, String courseId, String term);
+
+    List<WatchRequest> findByUserIdOrderByCreatedAtDesc(String userId);
+
+    List<WatchRequest> findByUserIdAndTermOrderByCreatedAtDesc(String userId, String term);
 
     @Modifying
     @Query(value = """

@@ -6,6 +6,7 @@ import type {
   UpdateProfileRequest,
   UserProfile,
   WatchRequest,
+  WatchlistItem,
 } from "./types";
 
 const userApiBase = () => import.meta.env.VITE_USER_API_BASE_URL ?? "http://localhost:8081";
@@ -165,6 +166,28 @@ export async function createWatchRequest(
   });
 }
 
+type WatchRequestListResponse = {
+  watches: WatchRequest[];
+};
+
+export async function listWatchRequests(
+  accessToken: string,
+  options: { term?: string; signal?: AbortSignal } = {},
+): Promise<WatchRequest[]> {
+  const params = new URLSearchParams();
+  if (options.term) {
+    params.set("term", options.term);
+  }
+  const query = params.toString();
+  const response = await request<WatchRequestListResponse>(
+    watchlistApiBase(),
+    `/api/v1/watch-requests${query ? `?${query}` : ""}`,
+    accessToken,
+    { signal: options.signal },
+  );
+  return response.watches;
+}
+
 type CatalogSearchResponse = {
   term: string;
   query: string;
@@ -202,4 +225,86 @@ export async function listCatalogTerms(signal?: AbortSignal): Promise<CatalogTer
   return publicRequest<CatalogTermsResponse>(catalogApiBase(), "/api/v1/catalog/terms", {
     signal,
   });
+}
+
+type CatalogLookupResponse = {
+  term: string;
+  count: number;
+  courses: CatalogCourse[];
+};
+
+export async function lookupCatalogCourses(options: {
+  term: string;
+  ids: string[];
+  signal?: AbortSignal;
+}): Promise<CatalogCourse[]> {
+  if (options.ids.length === 0) {
+    return [];
+  }
+
+  const params = new URLSearchParams();
+  params.set("term", options.term);
+  for (const id of options.ids) {
+    params.append("ids", id);
+  }
+
+  const response = await publicRequest<CatalogLookupResponse>(
+    catalogApiBase(),
+    `/api/v1/catalog/courses/lookup?${params.toString()}`,
+    { signal: options.signal },
+  );
+  return response.courses;
+}
+
+export function toWatchlistItem(watch: WatchRequest, course?: CatalogCourse): WatchlistItem {
+  const openSeats = course?.openSeats ?? 0;
+  return {
+    id: watch.id,
+    courseId: watch.courseId,
+    term: watch.term,
+    title: course?.title ?? watch.courseId,
+    openSeats,
+    waitlist: course?.waitlist ?? 0,
+    watchingSince: watch.createdAt,
+    seatsOpen: openSeats > 0,
+  };
+}
+
+export async function loadWatchlistItems(
+  accessToken: string,
+  options: { signal?: AbortSignal } = {},
+): Promise<WatchlistItem[]> {
+  const watches = await listWatchRequests(accessToken, { signal: options.signal });
+  if (watches.length === 0) {
+    return [];
+  }
+
+  const idsByTerm = new Map<string, string[]>();
+  for (const watch of watches) {
+    const ids = idsByTerm.get(watch.term) ?? [];
+    ids.push(watch.courseId);
+    idsByTerm.set(watch.term, ids);
+  }
+
+  const courses = await Promise.all(
+    [...idsByTerm.entries()].map(async ([term, ids]) => {
+      const found = await lookupCatalogCourses({
+        term,
+        ids,
+        signal: options.signal,
+      });
+      return [term, found] as const;
+    }),
+  );
+
+  const courseByTermAndId = new Map<string, CatalogCourse>();
+  for (const [term, found] of courses) {
+    for (const course of found) {
+      courseByTermAndId.set(`${term}:${course.courseId}`, course);
+    }
+  }
+
+  return watches.map((watch) =>
+    toWatchlistItem(watch, courseByTermAndId.get(`${watch.term}:${watch.courseId}`)),
+  );
 }

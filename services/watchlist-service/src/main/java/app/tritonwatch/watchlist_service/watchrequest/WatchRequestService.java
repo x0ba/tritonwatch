@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -46,6 +47,19 @@ public class WatchRequestService {
                 toResponse(watchRequest),
                 inserted == 1
         );
+    }
+
+    public List<WatchRequestResponse> list(String userId, String term) {
+        List<WatchRequest> watchRequests = term == null || term.isBlank()
+                ? watchRequestRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                : watchRequestRepository.findByUserIdAndTermOrderByCreatedAtDesc(
+                        userId,
+                        term.trim().toUpperCase(Locale.ROOT)
+                );
+
+        return watchRequests.stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     private WatchRequestResponse toResponse(WatchRequest watchRequest) {
