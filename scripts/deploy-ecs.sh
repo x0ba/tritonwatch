@@ -42,8 +42,13 @@ printf '{\n  "deploy_application": true,\n  "image_tag": "%s"\n}\n' "$image_tag"
 mv "$temporary_variables" "$deployment_variables"
 trap - EXIT
 
-terraform -chdir="$terraform_directory" init
-terraform -chdir="$terraform_directory" apply
+terraform -chdir="$terraform_directory" init -input=false
+
+if [[ "${CI:-}" == "true" || "${TF_IN_AUTOMATION:-}" == "true" ]]; then
+  terraform -chdir="$terraform_directory" apply -input=false -auto-approve
+else
+  terraform -chdir="$terraform_directory" apply
+fi
 
 cluster_name="$(terraform -chdir="$terraform_directory" output -raw ecs_cluster_name)"
 service_name="$(terraform -chdir="$terraform_directory" output -raw ecs_service_name)"

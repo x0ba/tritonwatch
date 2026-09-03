@@ -68,3 +68,13 @@ output "database_parameter_names" {
     for name, parameter in aws_ssm_parameter.database : name => parameter.name
   }
 }
+
+output "github_ci_role_arn" {
+  description = "IAM role assumed by pull-request CI for Terraform plan."
+  value       = aws_iam_role.github_ci.arn
+}
+
+output "github_deploy_role_arn" {
+  description = "IAM role assumed by the production deploy workflow."
+  value       = aws_iam_role.github_deploy.arn
+}

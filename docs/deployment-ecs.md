@@ -88,8 +88,10 @@ Set at least:
 
 Keep `deploy_application = false` for the first apply because ECR is initially empty.
 
-The local Terraform state contains generated database passwords. It is ignored by Git, but it must still be protected.
-For team or long-lived use, move the state to a versioned and encrypted S3 backend with S3 lock-file locking.
+The local Terraform state contains generated database passwords. Production CI
+requires the S3 backend in `backend.tf`. Follow [CI/CD](ci-cd.md) to create the
+bucket, migrate state, and create the GitHub OIDC deploy role before the next
+`terraform apply`.
 
 ## 2. Create AWS infrastructure and ECR repositories
 

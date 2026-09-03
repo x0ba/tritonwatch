@@ -24,3 +24,7 @@ monthly_budget_usd = 50
 
 enable_backups        = true
 backup_retention_days = 7
+
+github_repository           = "x0ba/tritonwatch"
+github_deploy_environment   = "production"
+create_github_oidc_provider = true

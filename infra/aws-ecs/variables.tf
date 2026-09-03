@@ -199,3 +199,26 @@ variable "backup_retention_days" {
     error_message = "backup_retention_days must be at least one day."
   }
 }
+
+variable "github_repository" {
+  description = "GitHub repository allowed to assume the CI and deploy roles, in owner/name form."
+  type        = string
+  default     = "x0ba/tritonwatch"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", var.github_repository))
+    error_message = "github_repository must be in owner/name form."
+  }
+}
+
+variable "github_deploy_environment" {
+  description = "GitHub Environment name required to assume the deploy role."
+  type        = string
+  default     = "production"
+}
+
+variable "create_github_oidc_provider" {
+  description = "Create the GitHub Actions OIDC provider. Set false and import if the account already has one."
+  type        = bool
+  default     = true
+}

@@ -40,7 +40,8 @@ docker compose -f infra/docker-compose.yml down -v
 
 The cost-optimized production deployment uses Amazon ECS with one EC2 container instance for the APIs, plus S3 and
 CloudFront for same-origin SPA + API at `tritonwatch.app`. See the complete
-[Amazon ECS deployment guide](docs/deployment-ecs.md).
+[Amazon ECS deployment guide](docs/deployment-ecs.md) and the
+[GitHub Actions CI/CD guide](docs/ci-cd.md).
 
 ## Running a service
 

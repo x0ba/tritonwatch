@@ -1,8 +1,8 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  frontend_bucket_name = "${var.project_name}-${var.environment}-frontend-${data.aws_caller_identity.current.account_id}"
-  has_route53          = var.route53_zone_id != null
+  frontend_bucket_name   = "${var.project_name}-${var.environment}-frontend-${data.aws_caller_identity.current.account_id}"
+  has_route53            = var.route53_zone_id != null
   api_origin_domain_name = local.has_route53 ? "origin.${var.domain_name}" : aws_eip.ecs_host.public_ip
   app_url                = local.has_route53 ? "https://${var.domain_name}" : "https://${aws_cloudfront_distribution.app.domain_name}"
 }
@@ -188,12 +188,12 @@ resource "aws_cloudfront_distribution" "app" {
   }
 
   ordered_cache_behavior {
-    path_pattern           = "/health/*"
-    target_origin_id       = "api-caddy"
-    viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
-    cached_methods         = ["GET", "HEAD"]
-    compress               = true
+    path_pattern             = "/health/*"
+    target_origin_id         = "api-caddy"
+    viewer_protocol_policy   = "redirect-to-https"
+    allowed_methods          = ["GET", "HEAD", "OPTIONS"]
+    cached_methods           = ["GET", "HEAD"]
+    compress                 = true
     cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
     origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3"
   }
