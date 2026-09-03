@@ -17,14 +17,13 @@ resource "aws_cloudwatch_log_group" "application" {
 }
 
 resource "aws_instance" "ecs_host" {
-  ami                         = data.aws_ssm_parameter.ecs_optimized_ami.value
-  instance_type               = var.instance_type
-  subnet_id                   = aws_subnet.public.id
-  vpc_security_group_ids      = [aws_security_group.ecs_host.id]
-  iam_instance_profile        = aws_iam_instance_profile.ecs_instance.name
-  associate_public_ip_address = false
-  monitoring                  = false
-  disable_api_termination     = false
+  ami                     = data.aws_ssm_parameter.ecs_optimized_ami.value
+  instance_type           = var.instance_type
+  subnet_id               = aws_subnet.public.id
+  vpc_security_group_ids  = [aws_security_group.ecs_host.id]
+  iam_instance_profile    = aws_iam_instance_profile.ecs_instance.name
+  monitoring              = false
+  disable_api_termination = false
 
   metadata_options {
     http_endpoint               = "enabled"
@@ -57,7 +56,10 @@ resource "aws_instance" "ecs_host" {
     install -d -m 0750 -o 1000 -g 1000 /opt/tritonwatch/caddy-data
     install -d -m 0750 -o 1000 -g 1000 /opt/tritonwatch/caddy-config
 
-    systemctl enable --now ecs
+    # ecs.service is ordered after cloud-final.service on the ECS-optimized AMI.
+    # Starting it synchronously from cloud-init deadlocks both units, so queue
+    # the start without waiting for cloud-init to finish.
+    systemctl enable --now --no-block ecs
   USER_DATA
 
   user_data_replace_on_change = false
