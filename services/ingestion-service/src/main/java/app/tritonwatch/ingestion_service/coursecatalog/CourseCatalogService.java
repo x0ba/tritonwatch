@@ -47,7 +47,6 @@ public class CourseCatalogService {
                 .map(CourseIds::normalize)
                 .filter(id -> !id.isBlank())
                 .distinct()
-                .limit(100)
                 .toList();
 
         if (normalizedIds.isEmpty()) {

@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { getMe, loadWatchlistItems, upsertMe } from "./api";
+import { getMe, listCatalogTerms, loadWatchlistItems, upsertMe } from "./api";
 import type { UserProfile, WatchlistItem } from "./types";
 import { useAccessToken } from "./useAccessToken";
 
@@ -82,8 +82,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setWatchesLoading(true);
     setWatchesError(null);
     try {
-      const token = await getToken();
-      const next = await loadWatchlistItems(token);
+      const [token, catalog] = await Promise.all([getToken(), listCatalogTerms()]);
+      const next = await loadWatchlistItems(token, { term: catalog.currentTerm });
       if (generation !== watchRefreshGeneration.current) {
         return;
       }

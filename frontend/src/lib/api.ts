@@ -233,6 +233,8 @@ type CatalogLookupResponse = {
   courses: CatalogCourse[];
 };
 
+export const CATALOG_LOOKUP_BATCH_SIZE = 100;
+
 export async function lookupCatalogCourses(options: {
   term: string;
   ids: string[];
@@ -242,6 +244,28 @@ export async function lookupCatalogCourses(options: {
     return [];
   }
 
+  const batches: string[][] = [];
+  for (let i = 0; i < options.ids.length; i += CATALOG_LOOKUP_BATCH_SIZE) {
+    batches.push(options.ids.slice(i, i + CATALOG_LOOKUP_BATCH_SIZE));
+  }
+
+  const results = await Promise.all(
+    batches.map((ids) =>
+      lookupCatalogCourseBatch({
+        term: options.term,
+        ids,
+        signal: options.signal,
+      }),
+    ),
+  );
+  return results.flat();
+}
+
+async function lookupCatalogCourseBatch(options: {
+  term: string;
+  ids: string[];
+  signal?: AbortSignal;
+}): Promise<CatalogCourse[]> {
   const params = new URLSearchParams();
   params.set("term", options.term);
   for (const id of options.ids) {
@@ -272,9 +296,12 @@ export function toWatchlistItem(watch: WatchRequest, course?: CatalogCourse): Wa
 
 export async function loadWatchlistItems(
   accessToken: string,
-  options: { signal?: AbortSignal } = {},
+  options: { term?: string; signal?: AbortSignal } = {},
 ): Promise<WatchlistItem[]> {
-  const watches = await listWatchRequests(accessToken, { signal: options.signal });
+  const watches = await listWatchRequests(accessToken, {
+    term: options.term,
+    signal: options.signal,
+  });
   if (watches.length === 0) {
     return [];
   }
