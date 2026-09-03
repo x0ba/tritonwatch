@@ -11,26 +11,26 @@ export function LandingPage() {
     <div className="min-h-screen bg-white pb-18">
       <MarketingNav />
 
-      <section className="mx-auto w-full max-w-[1180px] px-18 pt-[130px]">
+      <section className="mx-auto w-full max-w-[1180px] px-18 pt-[50px]">
         <h1 className="text-[112px] font-medium leading-[104px] tracking-[-0.045em] text-ink">
-          The class is full.
+          mfw
         </h1>
-        <p className="text-[112px] font-medium leading-[104px] tracking-[-0.045em] text-muted">
-          For now.
+        <p className="text-[32px] font-medium leading-[104px] tracking-[-0.045em] text-muted">
+          you don't wanna waitlist cuz you don't have enough units
         </p>
       </section>
 
       <section className="mx-auto flex w-full max-w-[1180px] flex-col items-start gap-16 px-18 pt-11">
         <p className="w-[470px] shrink-0 text-[19px] leading-[30px] text-muted">
-          Tritonwatch checks the UCSD Class Planner every two minutes and emails or texts you the
-          moment a seat opens in a course you’re waiting on.
+          tritonwatch checks the ucsd class planner every two minutes and emails or texts you the
+          moment a seat opens in a course you’re waiting on
         </p>
         <div className="flex items-center gap-5">
           <Link
             to={startPath}
             className="rounded-sm bg-ink px-7 py-[17px] text-base font-medium leading-5 text-white"
           >
-            Watch a course — free
+            Watch a course
           </Link>
           {!isSignedIn ? (
             <Link to="/sign-in" className="text-sm leading-[18px] text-muted">
