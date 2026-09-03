@@ -7,6 +7,11 @@ resource "aws_vpc" "main" {
     Name = "${var.project_name}-${var.environment}"
   }
 }
+
+data "aws_ec2_managed_prefix_list" "cloudfront_origin" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
@@ -45,32 +50,18 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_security_group" "ecs_host" {
-  name        = "${var.project_name}-${var.environment}-ecs-host"
-  description = "Public HTTPS ingress for the Tritonwatch ECS host"
+  # name_prefix + create_before_destroy: ingress/description changes replace the
+  # SG, but the EC2 host must keep an attached group during the swap.
+  name_prefix = "${var.project_name}-${var.environment}-ecs-host-"
+  description = "CloudFront origin ingress for the Tritonwatch ECS host"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "HTTP for ACME redirects"
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTPS"
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTP/3"
-    protocol    = "udp"
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
+    description     = "HTTP from CloudFront origin-facing prefix list"
+    protocol        = "tcp"
+    from_port       = 80
+    to_port         = 80
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront_origin.id]
   }
 
   egress {
@@ -84,6 +75,10 @@ resource "aws_security_group" "ecs_host" {
 
   tags = {
     Name = "${var.project_name}-${var.environment}-ecs-host"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 

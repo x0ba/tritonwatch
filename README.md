@@ -38,9 +38,20 @@ docker compose -f infra/docker-compose.yml down -v
 
 ## AWS deployment
 
-The cost-optimized production deployment uses Amazon ECS with one EC2 container instance. See the complete [Amazon ECS deployment guide](docs/deployment-ecs.md).
+The cost-optimized production deployment uses Amazon ECS with one EC2 container instance for the APIs, plus S3 and
+CloudFront for same-origin SPA + API at `tritonwatch.app`. See the complete
+[Amazon ECS deployment guide](docs/deployment-ecs.md).
 
 ## Running a service
+
+Create the ignored backend development environment file once:
+
+```bash
+cp .env.example .env
+```
+
+Replace `YOUR_INSTANCE` in `.env` with the Clerk Development instance hostname. Each Spring Boot service imports the
+root `.env` directly when run from its service directory; no shell export or Mise wrapper is required.
 
 ```bash
 cd services/watchlist-service
@@ -62,22 +73,23 @@ Most runtime settings have local defaults and can be overridden with environment
 
 The frontend add-watch picker uses these endpoints via `VITE_CATALOG_API_BASE_URL` (default `http://localhost:8083`).
 
-`watchlist-service` and `user-service` are Auth0-protected resource servers and also require `AUTH0_ISSUER` and
-`AUTH0_AUDIENCE`.
-See the complete [Auth0 setup and integration guide](docs/auth0.md).
+`watchlist-service` and `user-service` are Clerk-protected resource servers. They require `CLERK_ISSUER` and
+`CLERK_AUTHORIZED_PARTIES`; the frontend requires `VITE_CLERK_PUBLISHABLE_KEY`.
+See the complete [Clerk setup and integration guide](docs/clerk.md).
 
 ## User profile API
 
-`user-service` exposes self-service endpoints whose owner is always taken from the verified access token's `sub` claim:
+`user-service` exposes self-service endpoints whose owner is always taken from the verified Clerk session token's
+`sub` claim:
 
-- `GET /api/v1/me` — get the current profile (`read:user-profile`)
-- `PUT /api/v1/me` — create or replace display name, email, and E.164 phone number (`update:user-profile`)
-- `PUT /api/v1/me/notification-preferences` — replace email/SMS preferences (`update:user-profile`)
-- `POST /api/v1/me/email/verification-requests` — send an email verification code via Postmark (`update:user-profile`)
-- `POST /api/v1/me/email/verifications` — confirm the email verification code (`update:user-profile`)
-- `POST /api/v1/me/phone/verification-requests` — start Twilio Verify for the profile phone (`update:user-profile`)
-- `POST /api/v1/me/phone/verifications` — confirm the SMS verification code (`update:user-profile`)
-- `DELETE /api/v1/me` — soft-delete the profile and disable notifications (`update:user-profile`)
+- `GET /api/v1/me` — get the current profile
+- `PUT /api/v1/me` — create or replace display name, email, and E.164 phone number
+- `PUT /api/v1/me/notification-preferences` — replace email/SMS preferences
+- `POST /api/v1/me/email/verification-requests` — send an email verification code via Postmark
+- `POST /api/v1/me/email/verifications` — confirm the email verification code
+- `POST /api/v1/me/phone/verification-requests` — start Twilio Verify for the profile phone
+- `POST /api/v1/me/phone/verifications` — confirm the SMS verification code
+- `DELETE /api/v1/me` — soft-delete the profile and disable notifications
 
 Email and phone destinations must be verified before they become effective delivery channels. Email
 verification uses a hashed one-time code delivered by Postmark. Phone verification uses Twilio Verify.
@@ -119,7 +131,7 @@ Replace notification preferences:
 The consent fields are required only when SMS transitions from disabled to enabled. Enabling a channel requires its
 contact value to exist. Changing a phone number automatically disables SMS and records an opt-out for the old number.
 Profile and preference changes atomically write a versioned `UserNotificationSettingsUpdated` event to the user-service
-outbox; the relay publishes it with the Auth0 subject as the Kafka key.
+outbox; the relay publishes it with the Clerk user ID from the verified token subject as the Kafka key.
 
 Request email verification (Postmark):
 

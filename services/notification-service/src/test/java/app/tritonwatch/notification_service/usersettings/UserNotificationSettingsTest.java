@@ -12,7 +12,7 @@ class UserNotificationSettingsTest {
     void applyIfNewerIgnoresOlderProfileVersions() {
         Instant now = Instant.parse("2026-09-02T19:00:00Z");
         UserNotificationSettings settings = UserNotificationSettings.create(
-                "auth0|user",
+                "user_test",
                 3,
                 "ACTIVE",
                 "a@example.com",
@@ -45,7 +45,7 @@ class UserNotificationSettingsTest {
     void canReceiveEmailRequiresActiveVerifiedEnabledAddress() {
         Instant now = Instant.parse("2026-09-02T19:00:00Z");
         UserNotificationSettings settings = UserNotificationSettings.create(
-                "auth0|user",
+                "user_test",
                 1,
                 "ACTIVE",
                 "a@example.com",

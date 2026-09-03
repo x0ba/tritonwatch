@@ -1,4 +1,4 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth, useUser } from "@clerk/react";
 import {
   createContext,
   useCallback,
@@ -25,7 +25,8 @@ type AppDataContextValue = {
 const AppDataContext = createContext<AppDataContextValue | null>(null);
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading, user } = useAuth0();
+  const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const { getToken } = useAccessToken();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -33,7 +34,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [watches, setWatches] = useState<WatchlistItem[]>([]);
 
   const refreshProfile = useCallback(async () => {
-    if (!isAuthenticated) {
+    if (!isSignedIn) {
       setProfile(null);
       return;
     }
@@ -45,8 +46,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       let next = await getMe(token);
       if (!next) {
         next = await upsertMe(token, {
-          displayName: user?.name ?? null,
-          email: user?.email ?? null,
+          displayName: user?.fullName ?? null,
+          email: user?.primaryEmailAddress?.emailAddress ?? null,
         });
       }
       setProfile(next);
@@ -55,16 +56,16 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     } finally {
       setProfileLoading(false);
     }
-  }, [getToken, isAuthenticated, user?.email, user?.name]);
+  }, [getToken, isSignedIn, user?.fullName, user?.primaryEmailAddress?.emailAddress]);
 
   useEffect(() => {
-    if (isLoading) return;
-    if (!isAuthenticated) {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
       setProfile(null);
       return;
     }
     void refreshProfile();
-  }, [isAuthenticated, isLoading, refreshProfile]);
+  }, [isLoaded, isSignedIn, refreshProfile]);
 
   const addLocalWatch = useCallback((item: WatchlistItem) => {
     setWatches((current) => {

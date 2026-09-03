@@ -1,11 +1,11 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth } from "@clerk/react";
 import { Link } from "react-router-dom";
 import { MarketingNav } from "../components/AppNav";
 import { StatusDot } from "../components/StatusDot";
 
 export function LandingPage() {
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
-  const startPath = isAuthenticated ? "/watchlist" : "/sign-in";
+  const { isSignedIn } = useAuth();
+  const startPath = isSignedIn ? "/watchlist" : "/sign-in";
 
   return (
     <div className="min-h-screen bg-white pb-18">
@@ -32,14 +32,10 @@ export function LandingPage() {
           >
             Watch a course — free
           </Link>
-          {!isAuthenticated ? (
-            <button
-              type="button"
-              onClick={() => void loginWithRedirect()}
-              className="text-sm leading-[18px] text-muted"
-            >
+          {!isSignedIn ? (
+            <Link to="/sign-in" className="text-sm leading-[18px] text-muted">
               Sign in with your UCSD email
-            </button>
+            </Link>
           ) : (
             <Link to="/watchlist" className="text-sm leading-[18px] text-muted">
               Go to your watchlist

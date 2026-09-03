@@ -1,6 +1,3 @@
-export const AUTH0_SCOPES =
-  "openid profile email create:watch-requests read:user-profile update:user-profile";
-
 export function shortDisplayName(name: string | undefined, email: string | undefined): string {
   if (name) {
     const parts = name.trim().split(/\s+/);

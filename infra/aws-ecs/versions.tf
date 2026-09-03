@@ -24,3 +24,17 @@ provider "aws" {
     }
   }
 }
+
+# ACM certificates for CloudFront must be issued in us-west-1.
+provider "aws" {
+  alias  = "us_west_1"
+  region = "us-west-1"
+
+  default_tags {
+    tags = {
+      Application = var.project_name
+      Environment = var.environment
+      ManagedBy   = "terraform"
+    }
+  }
+}

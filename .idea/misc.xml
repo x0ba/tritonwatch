@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/services/notification-service" />
+    <file type="web" url="file://$PROJECT_DIR$/services/user-service" />
     <file type="web" url="file://$PROJECT_DIR$/shared/event-contracts" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="temurin-25" project-jdk-type="JavaSDK">

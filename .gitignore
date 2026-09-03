@@ -5,6 +5,8 @@
 **/*.env.*
 !**/*.env.example
 !**/*.env.example.*
+mise.local.toml
+mise.local.lock
 
 # Java and Gradle
 .gradle/

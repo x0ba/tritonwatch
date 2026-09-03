@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,9 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(WatchRequestController.class)
 @Import(SecurityConfig.class)
 @TestPropertySource(properties = {
-        "auth0.issuer=https://test-tenant.auth0.com/",
-        "auth0.audience=https://api.tritonwatch.app",
-        "auth0.allowed-origins=http://localhost:5173"
+        "clerk.issuer=https://test.clerk.accounts.dev",
+        "clerk.authorized-parties=http://localhost:5173",
+        "app.cors.allowed-origins=http://localhost:5173"
 })
 class WatchRequestControllerSecurityTests {
 
@@ -51,20 +50,9 @@ class WatchRequestControllerSecurityTests {
     }
 
     @Test
-    void rejectsTokenWithoutRequiredScope() throws Exception {
-        mockMvc.perform(post("/api/v1/watch-requests")
-                        .with(jwt().jwt(token -> token.subject("auth0|student-123")))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"courseId":"CSE 100","term":"FA26"}
-                                """))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
     void usesAuthenticatedSubjectAsUserId() throws Exception {
         UUID watchRequestId = UUID.randomUUID();
-        when(watchRequestService.create(eq("auth0|student-123"), any()))
+        when(watchRequestService.create(eq("user_student123"), any()))
                 .thenReturn(new CreateWatchResult(
                         new WatchRequestResponse(watchRequestId, "CSE 100", "FA26", Instant.parse("2026-08-30T12:00:00Z")),
                         true
@@ -72,8 +60,7 @@ class WatchRequestControllerSecurityTests {
 
         mockMvc.perform(post("/api/v1/watch-requests")
                         .with(jwt()
-                                .jwt(token -> token.subject("auth0|student-123"))
-                                .authorities(new SimpleGrantedAuthority("SCOPE_create:watch-requests")))
+                                .jwt(token -> token.subject("user_student123")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"courseId":"CSE 100","term":"FA26"}
@@ -81,6 +68,6 @@ class WatchRequestControllerSecurityTests {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(watchRequestId.toString()));
 
-        verify(watchRequestService).create(eq("auth0|student-123"), any());
+        verify(watchRequestService).create(eq("user_student123"), any());
     }
 }

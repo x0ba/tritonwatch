@@ -1,9 +1,9 @@
 {
 	admin 0.0.0.0:2019
-	email {$ACME_EMAIL}
+	auto_https off
 }
 
-{$API_DOMAIN} {
+:80 {
 	encode zstd gzip
 
 	handle /health/user {

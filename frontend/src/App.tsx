@@ -10,7 +10,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/sign-in" element={<SignInPage />} />
+      <Route path="/sign-in/*" element={<SignInPage />} />
       <Route element={<ProtectedLayout />}>
         <Route path="/watchlist" element={<WatchlistPage />} />
         <Route path="/watchlist/new" element={<AddWatchPage />} />

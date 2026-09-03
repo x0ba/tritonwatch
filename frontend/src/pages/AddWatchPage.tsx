@@ -86,7 +86,7 @@ export function AddWatchPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const token = await getToken("create:watch-requests");
+      const token = await getToken();
       await createWatchRequest(token, {
         courseId: selected.courseId,
         term,

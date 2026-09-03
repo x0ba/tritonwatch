@@ -3,10 +3,13 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/course-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/course-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/course-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/course-service.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ingestion-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ingestion-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ingestion-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ingestion-service.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/notification-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/notification-service.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/notification-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/notification-service.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/tritonwatch.iml" filepath="$PROJECT_DIR$/.idea/tritonwatch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/user-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/user-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/watchlist-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/watchlist-service.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/watchlist-service.test.iml" filepath="$PROJECT_DIR$/.idea/modules/watchlist-service.test.iml" />
     </modules>

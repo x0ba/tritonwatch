@@ -1,16 +1,17 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth, useClerk, useUser } from "@clerk/react";
 import { Link, NavLink } from "react-router-dom";
 import { Logo } from "./Logo";
 import { shortDisplayName } from "../lib/format";
 import { useAppData } from "../lib/AppDataProvider";
 
 export function AppNav() {
-  const { user, logout } = useAuth0();
+  const { signOut } = useClerk();
+  const { user } = useUser();
   const { profile } = useAppData();
 
   const name = shortDisplayName(
-    profile?.displayName ?? user?.name,
-    profile?.email.value ?? user?.email,
+    profile?.displayName ?? user?.fullName ?? undefined,
+    profile?.email.value ?? user?.primaryEmailAddress?.emailAddress,
   );
 
   return (
@@ -27,7 +28,7 @@ export function AppNav() {
         </NavLink>
         <button
           type="button"
-          onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+          onClick={() => void signOut({ redirectUrl: "/" })}
           className="flex items-center gap-[9px] text-sm leading-[18px] text-ink"
         >
           <span className="size-[26px] shrink-0 rounded-full bg-ink" />
@@ -39,7 +40,7 @@ export function AppNav() {
 }
 
 export function MarketingNav() {
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
+  const { isSignedIn } = useAuth();
 
   return (
     <header className="flex items-center justify-between px-18 py-[26px]">
@@ -48,21 +49,17 @@ export function MarketingNav() {
         <a href="#how-it-works" className="text-sm leading-[18px] text-muted">
           How it works
         </a>
-        {isAuthenticated ? (
+        {isSignedIn ? (
           <Link to="/watchlist" className="text-sm leading-[18px] text-ink">
             Watchlist
           </Link>
         ) : (
-          <button
-            type="button"
-            onClick={() => loginWithRedirect()}
-            className="text-sm leading-[18px] text-ink"
-          >
+          <Link to="/sign-in" className="text-sm leading-[18px] text-ink">
             Log in
-          </button>
+          </Link>
         )}
         <Link
-          to={isAuthenticated ? "/watchlist" : "/sign-in"}
+          to={isSignedIn ? "/watchlist" : "/sign-in"}
           className="rounded-sm bg-ink px-[18px] py-[11px] text-sm font-medium leading-[18px] text-white"
         >
           Start watching

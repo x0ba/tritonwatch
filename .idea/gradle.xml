@@ -67,11 +67,23 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/shared/event-contracts" name="event-contracts">
+                <projects>
+                  <project path="$PROJECT_DIR$/shared/event-contracts" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
         <option name="externalProjectPath" value="$PROJECT_DIR$/services/user-service" />
         <option name="gradleJvm" value="#JAVA_HOME" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/services/user-service" />
+            <option value="$PROJECT_DIR$/shared/event-contracts" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -61,39 +61,35 @@ variable "deploy_application" {
   default     = false
 }
 
-variable "api_domain_name" {
-  description = "Public API hostname used by Caddy, such as api.tritonwatch.app."
+variable "domain_name" {
+  description = "Public app hostname for the SPA and API (CloudFront), such as tritonwatch.app."
   type        = string
+  default     = "tritonwatch.app"
 
   validation {
-    condition     = can(regex("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$", var.api_domain_name))
-    error_message = "api_domain_name must be a fully qualified hostname without a URL scheme or path."
+    condition     = can(regex("^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$", var.domain_name))
+    error_message = "domain_name must be a fully qualified hostname without a URL scheme or path."
   }
 }
 
-variable "acme_email" {
-  description = "Email address used for ACME certificate registration."
+variable "clerk_issuer" {
+  description = "Clerk Frontend API URL used as the session-token issuer, without a trailing slash."
   type        = string
 
   validation {
-    condition     = can(regex("^[^@[:space:]]+@[^@[:space:]]+\\.[^@[:space:]]+$", var.acme_email))
-    error_message = "acme_email must be an email address."
+    condition     = startswith(var.clerk_issuer, "https://") && !endswith(var.clerk_issuer, "/")
+    error_message = "clerk_issuer must be an HTTPS URL without a trailing slash."
   }
 }
 
-variable "auth0_issuer" {
-  description = "Auth0 issuer URL, normally ending in a slash."
+variable "clerk_authorized_parties" {
+  description = "Comma-separated browser origins allowed in Clerk session-token azp claims."
   type        = string
 
   validation {
-    condition     = startswith(var.auth0_issuer, "https://") && endswith(var.auth0_issuer, "/")
-    error_message = "auth0_issuer must be an HTTPS URL ending in a slash."
+    condition     = length(trimspace(var.clerk_authorized_parties)) > 0
+    error_message = "clerk_authorized_parties must contain at least one browser origin."
   }
-}
-
-variable "auth0_audience" {
-  description = "Auth0 API audience."
-  type        = string
 }
 
 variable "cors_allowed_origins" {

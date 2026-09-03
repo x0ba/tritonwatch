@@ -3,7 +3,6 @@ package app.tritonwatch.user_service.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,13 +21,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    private static final String READ_USER_PROFILE = "SCOPE_read:user-profile";
-    private static final String UPDATE_USER_PROFILE = "SCOPE_update:user-profile";
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,16 +36,6 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/me").hasAuthority(READ_USER_PROFILE)
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/me", "/api/v1/me/notification-preferences")
-                        .hasAuthority(UPDATE_USER_PROFILE)
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/v1/me/email/verification-requests",
-                                "/api/v1/me/email/verifications",
-                                "/api/v1/me/phone/verification-requests",
-                                "/api/v1/me/phone/verifications"
-                        ).hasAuthority(UPDATE_USER_PROFILE)
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/me").hasAuthority(UPDATE_USER_PROFILE)
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(Customizer.withDefaults()))
@@ -56,27 +44,42 @@ public class SecurityConfig {
 
     @Bean
     NimbusJwtDecoder jwtDecoder(
-            @Value("${auth0.issuer}") String configuredIssuer,
-            @Value("${auth0.audience}") String audience
+            @Value("${clerk.issuer}") String configuredIssuer,
+            @Value("${clerk.authorized-parties}") String configuredAuthorizedParties
     ) {
-        String issuer = configuredIssuer.endsWith("/") ? configuredIssuer : configuredIssuer + "/";
+        String issuer = configuredIssuer.replaceAll("/+$", "");
+        Set<String> authorizedParties = Arrays.stream(configuredAuthorizedParties.split(","))
+                .map(String::trim)
+                .filter(party -> !party.isEmpty())
+                .collect(Collectors.toUnmodifiableSet());
+        if (authorizedParties.isEmpty()) {
+            throw new IllegalArgumentException("clerk.authorized-parties must contain at least one origin");
+        }
         NimbusJwtDecoder decoder = NimbusJwtDecoder
-                .withJwkSetUri(issuer + ".well-known/jwks.json")
+                .withJwkSetUri(issuer + "/.well-known/jwks.json")
                 .build();
 
         OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuer);
-        OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<List<String>>(
-                "aud",
-                audiences -> audiences != null && audiences.contains(audience)
+        OAuth2TokenValidator<Jwt> authorizedPartyValidator = new JwtClaimValidator<String>(
+                "azp",
+                party -> party != null && authorizedParties.contains(party)
+        );
+        OAuth2TokenValidator<Jwt> subjectValidator = new JwtClaimValidator<String>(
+                "sub",
+                subject -> subject != null && !subject.isBlank()
         );
 
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(issuerValidator, audienceValidator));
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                issuerValidator,
+                authorizedPartyValidator,
+                subjectValidator
+        ));
         return decoder;
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource(
-            @Value("${auth0.allowed-origins}") String configuredOrigins
+            @Value("${app.cors.allowed-origins}") String configuredOrigins
     ) {
         List<String> origins = Arrays.stream(configuredOrigins.split(","))
                 .map(String::trim)

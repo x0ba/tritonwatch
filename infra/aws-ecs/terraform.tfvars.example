@@ -9,17 +9,17 @@ instance_type = "t3a.medium"
 deploy_application = false
 image_tag          = "latest"
 
-api_domain_name = "api.example.com"
-acme_email       = "admin@example.com"
+domain_name = "tritonwatch.app"
 
-auth0_issuer         = "https://example.us.auth0.com/"
-auth0_audience       = "https://api.example.com"
-cors_allowed_origins = "https://example.com,http://localhost:5173"
+clerk_issuer             = "https://clerk.tritonwatch.app"
+clerk_authorized_parties = "https://tritonwatch.app"
+cors_allowed_origins     = "https://tritonwatch.app,http://localhost:5173"
 
-# Set this when the domain is hosted in Route 53. Otherwise create the A record yourself.
+# Required for the apex hostname (ACM + Route 53 alias to CloudFront).
+# Without it, the app is still available on the CloudFront default domain.
 route53_zone_id = null
 
-budget_email       = "admin@example.com"
+budget_email       = "admin@tritonwatch.app"
 monthly_budget_usd = 50
 
 enable_backups        = true

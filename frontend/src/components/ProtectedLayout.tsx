@@ -1,15 +1,15 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth } from "@clerk/react";
 import { Navigate, Outlet } from "react-router-dom";
 import { AppNav } from "./AppNav";
 
 export function ProtectedLayout() {
-  const { isAuthenticated, isLoading } = useAuth0();
+  const { isLoaded, isSignedIn } = useAuth();
 
-  if (isLoading) {
+  if (!isLoaded) {
     return <div className="flex min-h-screen items-center justify-center text-muted">Loading…</div>;
   }
 
-  if (!isAuthenticated) {
+  if (!isSignedIn) {
     return <Navigate to="/sign-in" replace />;
   }
 

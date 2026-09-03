@@ -1,19 +1,24 @@
 # Deploying Tritonwatch to Amazon ECS
 
-This deployment keeps the application architecture unchanged. Amazon ECS runs one EC2-backed task containing
-PostgreSQL, Kafka, Caddy, and the four Spring Boot services. It is intentionally a low-cost, single-host deployment,
-not a highly available distributed deployment.
+Amazon ECS runs one EC2-backed task containing PostgreSQL, Kafka, Caddy, and the four Spring Boot services.
+CloudFront sits in front of both the Vite SPA (S3) and the API (Caddy on the ECS host). The public site is a
+same-origin app at `tritonwatch.app`. This is intentionally a low-cost, single-host API deployment, not a highly
+available distributed deployment.
 
 ## Architecture
 
 ```text
 Internet
    |
-Elastic IP :80/:443
-   |
-Caddy container
+tritonwatch.app (CloudFront + ACM)
+   |-- /*            -> S3 (Vite build)
+   |-- /api/*        -> origin.tritonwatch.app (Caddy :80 on ECS)
+   `-- /health/*     -> origin.tritonwatch.app (Caddy :80 on ECS)
+
+Caddy on the ECS host
    |-- /api/v1/me*             -> user-service
-   `-- /api/v1/watch-requests* -> watchlist-service
+   |-- /api/v1/watch-requests* -> watchlist-service
+   `-- /api/v1/catalog*        -> ingestion-service
 
 One ECS task on one EC2 container instance
    |-- user-service
@@ -25,7 +30,8 @@ One ECS task on one EC2 container instance
 ```
 
 The host is not reachable over SSH. Use AWS Systems Manager Session Manager or ECS Exec for administration.
-PostgreSQL, Kafka, and the application ports are not exposed publicly.
+PostgreSQL, Kafka, and the application ports are not exposed publicly. Port 80 on the ECS host accepts traffic only
+from the CloudFront origin-facing managed prefix list.
 
 ## What Terraform creates
 
@@ -36,16 +42,17 @@ PostgreSQL, Kafka, and the application ports are not exposed publicly.
 - SecureString Parameter Store values for all database passwords.
 - IAM roles for ECS, ECR pulls, Parameter Store, Systems Manager, and ECS Exec.
 - A CloudWatch log group with 14-day retention.
-- An optional Route 53 A record.
+- An S3 bucket, CloudFront distribution (SPA + API behaviors), and optional ACM certificate.
+- Optional Route 53 records: apex → CloudFront, `origin.<domain>` → Elastic IP.
 - Optional daily AWS Backup recovery points with seven-day retention.
 - An optional AWS Budget notification.
 
 ## Expected cost
 
-The main costs are the `t3a.medium` instance, its 50 GB gp3 volume, one public IPv4 address, ECR storage,
-CloudWatch logs, and backups. Expect roughly $40-60 per month in `us-west-2`, depending on log volume and backup
-storage. The example creates account-wide budget alerts at $40 actual spend and $50 forecasted spend. Change
-`instance_type` to `t3a.large` if the 4 GB host experiences memory pressure.
+The main costs are the EC2 instance, its EBS volume, one public IPv4 address, ECR storage, CloudWatch logs, and
+backups. S3 + CloudFront is typically a few dollars per month. Expect roughly $40-65 per month depending on region,
+instance type, log volume, backup storage, and traffic. The example creates account-wide budget alerts at $40 actual
+spend and $50 forecasted spend.
 
 ## Prerequisites
 
@@ -54,7 +61,7 @@ Install and authenticate:
 - Terraform 1.10 or newer.
 - AWS CLI v2.
 - Docker with Buildx.
-- An AWS identity allowed to manage EC2, ECS, ECR, IAM, SSM, Route 53, CloudWatch, AWS Backup, and Budgets.
+- An AWS identity allowed to manage EC2, ECS, ECR, IAM, SSM, Route 53, CloudFront, ACM, CloudWatch, AWS Backup, and Budgets.
 - A registered domain whose DNS you can update.
 
 Confirm the AWS identity before creating resources:
@@ -73,12 +80,11 @@ cp infra/aws-ecs/terraform.tfvars.example infra/aws-ecs/terraform.tfvars
 
 Set at least:
 
-- `api_domain_name`
-- `acme_email`
-- `auth0_issuer`
-- `auth0_audience`
-- `cors_allowed_origins`
-- `route53_zone_id`, if Route 53 hosts the domain
+- `domain_name` (defaults to `tritonwatch.app`)
+- `clerk_issuer` (the production instance's Frontend API URL, such as `https://clerk.tritonwatch.app`)
+- `clerk_authorized_parties` (`https://tritonwatch.app`)
+- `cors_allowed_origins` (include `https://tritonwatch.app` and local Vite)
+- `route53_zone_id`, if Route 53 hosts the domain (required for the apex hostname and ACM)
 
 Keep `deploy_application = false` for the first apply because ECR is initially empty.
 
@@ -107,23 +113,24 @@ IMAGE_TAG="$(git rev-parse --short HEAD)"
 ```
 
 The script builds Linux AMD64 images for all four services, PostgreSQL, Kafka, and Caddy, then pushes them to ECR.
+Rebuild Caddy whenever `infra/production/Caddyfile` changes.
 
 ## 4. Configure DNS
 
-When `route53_zone_id` is set, Terraform creates the API A record automatically. Otherwise, create an A record at
-your DNS provider pointing `api_domain_name` to:
+When `route53_zone_id` is set, Terraform creates:
+
+- apex A/AAAA aliases for `domain_name` pointing at CloudFront, plus ACM validation records; and
+- `origin.<domain_name>` A record pointing at the ECS Elastic IP (CloudFront API origin).
+
+Without Route 53, the app is still available on the CloudFront default domain from
+`terraform -chdir=infra/aws-ecs output -raw app_url`, and CloudFront reaches Caddy via the Elastic IP directly.
+
+Confirm the origin resolves before deploying the ECS task:
 
 ```bash
+dig +short origin.tritonwatch.app
 terraform -chdir=infra/aws-ecs output -raw public_ip
 ```
-
-Wait for DNS before starting Caddy:
-
-```bash
-dig +short api.example.com
-```
-
-The result must match the Terraform `public_ip` output.
 
 ## 5. Deploy the ECS task
 
@@ -139,8 +146,9 @@ image instead of reverting to the first-run settings.
 ## 6. Verify
 
 ```bash
-curl --fail https://api.example.com/health/user
-curl --fail https://api.example.com/health/watchlist
+curl --fail https://tritonwatch.app/health/user
+curl --fail https://tritonwatch.app/health/watchlist
+curl --fail https://tritonwatch.app/health/ingestion
 ```
 
 Inspect ECS:
@@ -177,8 +185,28 @@ IMAGE_TAG="$(git rev-parse --short HEAD)"
 ./scripts/deploy-ecs.sh "$IMAGE_TAG"
 ```
 
-Because ports 80 and 443 are fixed on one EC2 host, the ECS service uses a stop-then-start deployment. Expect a short
+Because port 80 is fixed on one EC2 host, the ECS service uses a stop-then-start deployment. Expect a short
 downtime during updates.
+
+## Deploying the frontend
+
+After Terraform has created the S3 bucket and CloudFront distribution, build and publish the Vite SPA:
+
+```bash
+export VITE_CLERK_PUBLISHABLE_KEY='pk_live_REPLACE_ME'
+
+./scripts/deploy-frontend.sh
+```
+
+The script builds with same-origin API base URLs from Terraform `app_url`, syncs `frontend/dist` to S3, and
+invalidates CloudFront.
+
+Also confirm:
+
+- the Clerk production instance is active and its domain is `tritonwatch.app`
+- `clerk_issuer` exactly matches the production instance's Frontend API URL
+- `clerk_authorized_parties` includes `https://tritonwatch.app`
+- `cors_allowed_origins` includes `https://tritonwatch.app`
 
 ## Backups and recovery
 

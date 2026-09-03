@@ -166,8 +166,8 @@ resource "aws_ecs_task_definition" "application" {
         { name = "DATABASE_URL", value = "jdbc:postgresql://postgres:5432/user_service" },
         { name = "DATABASE_USERNAME", value = "user_service" },
         { name = "KAFKA_BOOTSTRAP_SERVERS", value = "kafka:29092" },
-        { name = "AUTH0_ISSUER", value = var.auth0_issuer },
-        { name = "AUTH0_AUDIENCE", value = var.auth0_audience },
+        { name = "CLERK_ISSUER", value = var.clerk_issuer },
+        { name = "CLERK_AUTHORIZED_PARTIES", value = var.clerk_authorized_parties },
         { name = "CORS_ALLOWED_ORIGINS", value = var.cors_allowed_origins },
         { name = "POSTMARK_SERVER_TOKEN", value = var.postmark_server_token },
         { name = "POSTMARK_FROM_EMAIL", value = var.postmark_from_email },
@@ -209,8 +209,8 @@ resource "aws_ecs_task_definition" "application" {
         { name = "DATABASE_URL", value = "jdbc:postgresql://postgres:5432/watchlist_service" },
         { name = "DATABASE_USERNAME", value = "watchlist_service" },
         { name = "KAFKA_BOOTSTRAP_SERVERS", value = "kafka:29092" },
-        { name = "AUTH0_ISSUER", value = var.auth0_issuer },
-        { name = "AUTH0_AUDIENCE", value = var.auth0_audience },
+        { name = "CLERK_ISSUER", value = var.clerk_issuer },
+        { name = "CLERK_AUTHORIZED_PARTIES", value = var.clerk_authorized_parties },
         { name = "CORS_ALLOWED_ORIGINS", value = var.cors_allowed_origins },
         { name = "JAVA_TOOL_OPTIONS", value = local.java_tool_options },
       ]
@@ -322,14 +322,8 @@ resource "aws_ecs_task_definition" "application" {
         { containerName = "watchlist-service", condition = "HEALTHY" },
         { containerName = "ingestion-service", condition = "HEALTHY" },
       ]
-      environment = [
-        { name = "API_DOMAIN", value = var.api_domain_name },
-        { name = "ACME_EMAIL", value = var.acme_email },
-      ]
       portMappings = [
         { containerPort = 80, hostPort = 80, protocol = "tcp" },
-        { containerPort = 443, hostPort = 443, protocol = "tcp" },
-        { containerPort = 443, hostPort = 443, protocol = "udp" },
       ]
       mountPoints = [
         { sourceVolume = "caddy-data", containerPath = "/data", readOnly = false },

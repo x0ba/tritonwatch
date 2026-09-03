@@ -53,12 +53,12 @@ class NotificationDispatchServiceTest {
     @Test
     void enqueueCreatesEmailAndSmsAttemptsForEligibleSubscribers() {
         Subscription subscription = new Subscription();
-        subscription.setUserId("auth0|user-1");
+        subscription.setUserId("user_1");
         subscription.setCourseId("CSE 100");
         subscription.setTerm("FA26");
 
         UserNotificationSettings settings = UserNotificationSettings.create(
-                "auth0|user-1",
+                "user_1",
                 1,
                 "ACTIVE",
                 "student@ucsd.edu",
@@ -72,7 +72,7 @@ class NotificationDispatchServiceTest {
 
         when(subscriptionRepository.findByCourseIdAndTerm("CSE 100", "FA26"))
                 .thenReturn(List.of(subscription));
-        when(userNotificationSettingsRepository.findByUserIdIn(List.of("auth0|user-1")))
+        when(userNotificationSettingsRepository.findByUserIdIn(List.of("user_1")))
                 .thenReturn(List.of(settings));
         when(deliveryAttemptRepository.insertIfAbsent(
                 any(), any(), any(), any(), any(), any(), any(), anyInt(), anyInt(), any()
@@ -94,7 +94,7 @@ class NotificationDispatchServiceTest {
         verify(deliveryAttemptRepository).insertIfAbsent(
                 any(),
                 eq(eventId),
-                eq("auth0|user-1"),
+                eq("user_1"),
                 channelCaptor.capture(),
                 eq("CSE 100"),
                 eq("FA26"),
@@ -106,7 +106,7 @@ class NotificationDispatchServiceTest {
         verify(deliveryAttemptRepository).insertIfAbsent(
                 any(),
                 eq(eventId),
-                eq("auth0|user-1"),
+                eq("user_1"),
                 channelCaptor.capture(),
                 eq("CSE 100"),
                 eq("FA26"),
@@ -121,12 +121,12 @@ class NotificationDispatchServiceTest {
     @Test
     void enqueueSkipsUsersWithoutVerifiedChannels() {
         Subscription subscription = new Subscription();
-        subscription.setUserId("auth0|user-2");
+        subscription.setUserId("user_2");
         subscription.setCourseId("CSE 100");
         subscription.setTerm("FA26");
 
         UserNotificationSettings settings = UserNotificationSettings.create(
-                "auth0|user-2",
+                "user_2",
                 1,
                 "ACTIVE",
                 "student@ucsd.edu",
@@ -140,7 +140,7 @@ class NotificationDispatchServiceTest {
 
         when(subscriptionRepository.findByCourseIdAndTerm("CSE 100", "FA26"))
                 .thenReturn(List.of(subscription));
-        when(userNotificationSettingsRepository.findByUserIdIn(List.of("auth0|user-2")))
+        when(userNotificationSettingsRepository.findByUserIdIn(List.of("user_2")))
                 .thenReturn(List.of(settings));
 
         notificationDispatchService.enqueue(new CourseSectionBecameAvailable(

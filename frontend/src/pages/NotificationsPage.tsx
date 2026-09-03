@@ -45,7 +45,7 @@ export function NotificationsPage() {
     setError(null);
     setMessage(null);
     try {
-      const token = await getToken("update:user-profile");
+      const token = await getToken();
 
       let next = profile;
       if (editingPhone || phoneDraft !== (profile.phone.value ?? "")) {
@@ -81,7 +81,7 @@ export function NotificationsPage() {
     setError(null);
     setMessage(null);
     try {
-      const token = await getToken("update:user-profile");
+      const token = await getToken();
       await requestEmailVerification(token);
       setMessage("Verification code sent to your email.");
     } catch (err) {
@@ -93,7 +93,7 @@ export function NotificationsPage() {
     setError(null);
     setMessage(null);
     try {
-      const token = await getToken("update:user-profile");
+      const token = await getToken();
       if (phoneDraft && phoneDraft !== (profile?.phone.value ?? "")) {
         await upsertMe(token, {
           displayName: profile?.displayName ?? null,
@@ -114,7 +114,7 @@ export function NotificationsPage() {
       return;
     }
     try {
-      const token = await getToken("update:user-profile");
+      const token = await getToken();
       await deleteMe(token);
       void navigate("/");
       window.location.reload();
