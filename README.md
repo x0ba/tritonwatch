@@ -4,7 +4,7 @@ WIP: App that alerts students via email or text when their UCSD courses open up.
 
 ## Architecture
 
-- [tldraw diagram](https://www.tldraw.com/f/uMOnB2d7simw__NtL01GR?d=v-184.603.1179.812.page)
+- [tldraw diagram](https://www.tldraw.com/f/uMOnB2d7simw__NtL01GR?d=v-184.603.1179.812.page) (it's so out of date)
 - `user-service` — user profiles and notification preferences (port `8081`)
 - `watchlist-service` — watch requests and watch-created events (port `8082`)
 - `ingestion-service` — tracking, UCSD polling, and weekly course catalog (port `8083`)
@@ -13,6 +13,19 @@ WIP: App that alerts students via email or text when their UCSD courses open up.
 
 The services are independent Gradle builds. Each includes `event-contracts` as a Gradle composite build, so no local
 Maven publish step is needed.
+
+## How does it work?
+
+The entire thing is powered by the [UCSD Class Planner's](https://classplanner.apps.ucsd.edu/workspace?term=FA26)
+public API. 
+
+When a user watches a course, the watchlist microservice saves that watch and fires off an event to the ingestion service.
+The ingestion service keeps a list of all the courses that everyone using Tritonwatch has watched, and puts all of them into one
+API call to `POST https://classplanner.apps.ucsd.edu/api/v1/catalog/courses/search`. If the list is long, it paginates
+and splits them into multiple API calls. This runs every 2 minutes, and if a course ever becomes available, an event is sent
+to the notification microservice which then sends the notification to the user with Postmark and/or Twilio.
+
+The search function for courses just calls the same API as the search functionality in the class planner app.
 
 ## Local infrastructure
 
