@@ -16,8 +16,7 @@ Maven publish step is needed.
 
 ## How does it work?
 
-The entire thing is powered by the [UCSD Class Planner's](https://classplanner.apps.ucsd.edu/workspace?term=FA26)
-public API. 
+The entire thing is powered by the [UCSD Class Planner's](https://classplanner.apps.ucsd.edu/workspace?term=FA26) public API. 
 
 When a user watches a course, the watchlist microservice saves that watch and fires off an event to the ingestion service. The ingestion service keeps a list of all the courses that everyone using Tritonwatch has watched, and puts all of them into one API call to `POST https://classplanner.apps.ucsd.edu/api/v1/catalog/courses/search`. If the list is long, it paginates and splits them into multiple API calls. This runs every 2 minutes, and if a course ever becomes available, an event is sent to the notification microservice which then sends the notification to the user with Postmark and/or Twilio.
 
