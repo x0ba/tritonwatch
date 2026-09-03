@@ -1,5 +1,8 @@
 .DS_Store
 
+# Local process logs from scripts/dev.sh
+.dev-logs/
+
 # Runtime secrets
 **/*.env
 **/*.env.*

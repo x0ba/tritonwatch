@@ -33,32 +33,20 @@ mise activate
 sdk env
 ```
 
-Then start the local PostgreSQL, Kafka, and Redis containers. Postgres databases and Kafka topics will be created *once* on Docker compose start; if you add a database or a topic you'll have to take the volume down and recreate it.
-
-```bash
-docker compose -f infra/docker-compose.yml up -d
-```
-
-Copy the example environment file to `.env` and fill in everything:
+Copy the example environment files and fill in Clerk:
 
 ```bash
 cp .env.example .env
+cp frontend/.env.example frontend/.env
 ```
 
-Start each service as follows:
+Then start Postgres, Kafka, Redis, the four backend services, and the frontend:
 
 ```bash
-cd services/watchlist-service
-./gradlew bootRun
+./scripts/dev.sh
 ```
 
-And start the frontend:
-
-```bash
-cd frontend
-vp i
-vp dev
-```
+Ctrl+C stops the apps and leaves Docker running. `./scripts/dev.sh down` stops the containers. Postgres databases and Kafka topics are created *once* on first compose start; if you add a database or a topic, take the volume down and recreate it.
 
 ## Deployment
 
