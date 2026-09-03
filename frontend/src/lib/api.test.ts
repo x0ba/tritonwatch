@@ -1,5 +1,10 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { CATALOG_LOOKUP_BATCH_SIZE, loadWatchlistItems, lookupCatalogCourses } from "./api";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  CATALOG_LOOKUP_BATCH_SIZE,
+  deleteWatchRequest,
+  loadWatchlistItems,
+  lookupCatalogCourses,
+} from "./api";
 
 function jsonResponse(body: unknown, status = 200): Promise<Response> {
   return Promise.resolve(
@@ -122,5 +127,21 @@ describe("loadWatchlistItems", () => {
       "FA26:CSE 11",
       "SP26:CSE 101",
     ]);
+  });
+});
+
+describe("deleteWatchRequest", () => {
+  it("deletes the authenticated user's watch by id", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "http://localhost:8082");
+      expect(url.pathname).toBe("/api/v1/watch-requests/watch-1");
+      expect(init?.method).toBe("DELETE");
+      return new Response(null, { status: 204 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await deleteWatchRequest("token", "watch-1");
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
