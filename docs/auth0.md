@@ -99,7 +99,9 @@ They:
 - permit unauthenticated health probes;
 - require `create:watch-requests` for `POST /api/v1/watch-requests`;
 - require `read:user-profile` for `GET /api/v1/me`;
-- require `update:user-profile` for `PUT /api/v1/me`, `PUT /api/v1/me/notification-preferences`, and `DELETE /api/v1/me`;
+- require `update:user-profile` for `PUT /api/v1/me`, `PUT /api/v1/me/notification-preferences`,
+  `POST /api/v1/me/email/verification-requests`, `POST /api/v1/me/email/verifications`,
+  `POST /api/v1/me/phone/verification-requests`, `POST /api/v1/me/phone/verifications`, and `DELETE /api/v1/me`;
 - disable CSRF and server sessions because authentication is a bearer token; and
 - restrict browser CORS to configured origins.
 

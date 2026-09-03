@@ -41,6 +41,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/me").hasAuthority(READ_USER_PROFILE)
                         .requestMatchers(HttpMethod.PUT, "/api/v1/me", "/api/v1/me/notification-preferences")
                         .hasAuthority(UPDATE_USER_PROFILE)
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/me/email/verification-requests",
+                                "/api/v1/me/email/verifications",
+                                "/api/v1/me/phone/verification-requests",
+                                "/api/v1/me/phone/verifications"
+                        ).hasAuthority(UPDATE_USER_PROFILE)
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/me").hasAuthority(UPDATE_USER_PROFILE)
                         .anyRequest().authenticated()
                 )
@@ -79,7 +85,7 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(origins);
-        configuration.setAllowedMethods(List.of("GET", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "PUT", "POST", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setMaxAge(3600L);
 

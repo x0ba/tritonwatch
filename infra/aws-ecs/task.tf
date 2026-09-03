@@ -169,6 +169,11 @@ resource "aws_ecs_task_definition" "application" {
         { name = "AUTH0_ISSUER", value = var.auth0_issuer },
         { name = "AUTH0_AUDIENCE", value = var.auth0_audience },
         { name = "CORS_ALLOWED_ORIGINS", value = var.cors_allowed_origins },
+        { name = "POSTMARK_SERVER_TOKEN", value = var.postmark_server_token },
+        { name = "POSTMARK_FROM_EMAIL", value = var.postmark_from_email },
+        { name = "TWILIO_ACCOUNT_SID", value = var.twilio_account_sid },
+        { name = "TWILIO_AUTH_TOKEN", value = var.twilio_auth_token },
+        { name = "TWILIO_VERIFY_SERVICE_SID", value = var.twilio_verify_service_sid },
         { name = "JAVA_TOOL_OPTIONS", value = local.java_tool_options },
       ]
       secrets = [{
@@ -279,6 +284,12 @@ resource "aws_ecs_task_definition" "application" {
         { name = "DATABASE_URL", value = "jdbc:postgresql://postgres:5432/notification_service" },
         { name = "DATABASE_USERNAME", value = "notification_service" },
         { name = "KAFKA_BOOTSTRAP_SERVERS", value = "kafka:29092" },
+        { name = "POSTMARK_SERVER_TOKEN", value = var.postmark_server_token },
+        { name = "POSTMARK_FROM_EMAIL", value = var.postmark_from_email },
+        { name = "TWILIO_ACCOUNT_SID", value = var.twilio_account_sid },
+        { name = "TWILIO_AUTH_TOKEN", value = var.twilio_auth_token },
+        { name = "TWILIO_FROM_NUMBER", value = var.twilio_from_number },
+        { name = "TWILIO_MESSAGING_SERVICE_SID", value = var.twilio_messaging_service_sid },
         { name = "JAVA_TOOL_OPTIONS", value = local.java_tool_options },
       ]
       secrets = [{

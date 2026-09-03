@@ -62,10 +62,24 @@ See the complete [Auth0 setup and integration guide](docs/auth0.md).
 - `GET /api/v1/me` — get the current profile (`read:user-profile`)
 - `PUT /api/v1/me` — create or replace display name, email, and E.164 phone number (`update:user-profile`)
 - `PUT /api/v1/me/notification-preferences` — replace email/SMS preferences (`update:user-profile`)
+- `POST /api/v1/me/email/verification-requests` — send an email verification code via Postmark (`update:user-profile`)
+- `POST /api/v1/me/email/verifications` — confirm the email verification code (`update:user-profile`)
+- `POST /api/v1/me/phone/verification-requests` — start Twilio Verify for the profile phone (`update:user-profile`)
+- `POST /api/v1/me/phone/verifications` — confirm the SMS verification code (`update:user-profile`)
 - `DELETE /api/v1/me` — soft-delete the profile and disable notifications (`update:user-profile`)
 
-Email and phone destinations are intentionally unverified until provider-backed verification is implemented. The API
-reports configured preferences separately from effective delivery channels, and SMS opt-in/opt-out changes are audited.
+Email and phone destinations must be verified before they become effective delivery channels. Email
+verification uses a hashed one-time code delivered by Postmark. Phone verification uses Twilio Verify.
+SMS opt-in/opt-out changes are audited.
+
+`notification-service` projects `UserNotificationSettingsUpdated` into a local settings table, fans out
+`CourseSectionBecameAvailable` into idempotent `delivery_attempts`, and sends via Postmark (email) and
+Twilio (SMS). Configure:
+
+- `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL`
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`
+- `TWILIO_FROM_NUMBER` and/or `TWILIO_MESSAGING_SERVICE_SID` (alerts)
+- `TWILIO_VERIFY_SERVICE_SID` (phone verification in user-service)
 
 Create or replace a profile (omitted nullable fields are cleared):
 
@@ -95,6 +109,21 @@ The consent fields are required only when SMS transitions from disabled to enabl
 contact value to exist. Changing a phone number automatically disables SMS and records an opt-out for the old number.
 Profile and preference changes atomically write a versioned `UserNotificationSettingsUpdated` event to the user-service
 outbox; the relay publishes it with the Auth0 subject as the Kafka key.
+
+Request email verification (Postmark):
+
+```http
+POST /api/v1/me/email/verification-requests
+```
+
+Confirm with:
+
+```json
+{ "code": "123456" }
+```
+
+Request phone verification (Twilio Verify) and confirm with the same `{ "code": "..." }` shape on
+`/api/v1/me/phone/verification-requests` and `/api/v1/me/phone/verifications`.
 
 ## Database migrations
 

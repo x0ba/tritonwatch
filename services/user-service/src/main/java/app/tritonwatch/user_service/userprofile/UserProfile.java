@@ -112,6 +112,24 @@ public class UserProfile {
         this.updatedAt = now;
     }
 
+    public boolean markEmailVerified(Instant now) {
+        if (email == null || emailVerifiedAt != null) {
+            return false;
+        }
+        this.emailVerifiedAt = now;
+        touch(now);
+        return true;
+    }
+
+    public boolean markPhoneVerified(Instant now) {
+        if (phoneE164 == null || phoneVerifiedAt != null) {
+            return false;
+        }
+        this.phoneVerifiedAt = now;
+        touch(now);
+        return true;
+    }
+
     public void markDeleted(Instant now) {
         this.displayName = null;
         this.email = null;

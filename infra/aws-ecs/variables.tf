@@ -143,6 +143,50 @@ variable "monthly_budget_usd" {
   }
 }
 
+variable "postmark_server_token" {
+  description = "Postmark server API token used for email delivery and verification."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "postmark_from_email" {
+  description = "Verified Postmark From address for outbound Tritonwatch email."
+  type        = string
+  default     = ""
+}
+
+variable "twilio_account_sid" {
+  description = "Twilio Account SID used for SMS delivery and Verify."
+  type        = string
+  default     = ""
+}
+
+variable "twilio_auth_token" {
+  description = "Twilio Auth Token used for SMS delivery and Verify."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "twilio_from_number" {
+  description = "Optional Twilio From number in E.164. Prefer messaging_service_sid in production."
+  type        = string
+  default     = ""
+}
+
+variable "twilio_messaging_service_sid" {
+  description = "Optional Twilio Messaging Service SID for outbound SMS alerts."
+  type        = string
+  default     = ""
+}
+
+variable "twilio_verify_service_sid" {
+  description = "Twilio Verify Service SID used for phone number verification."
+  type        = string
+  default     = ""
+}
+
 variable "enable_backups" {
   description = "Create daily AWS Backup recovery points for the ECS host."
   type        = bool
