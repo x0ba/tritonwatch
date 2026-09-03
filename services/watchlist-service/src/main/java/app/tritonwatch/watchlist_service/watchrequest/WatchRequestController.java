@@ -2,6 +2,7 @@ package app.tritonwatch.watchlist_service.watchrequest;
 
 import app.tritonwatch.watchlist_service.watchrequest.dto.CreateWatchRequest;
 import app.tritonwatch.watchlist_service.watchrequest.dto.CreateWatchResult;
+import app.tritonwatch.watchlist_service.watchrequest.dto.WatchRequestListResponse;
 import app.tritonwatch.watchlist_service.watchrequest.dto.WatchRequestResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,14 @@ public class WatchRequestController {
         HttpStatus status = result.created() ? HttpStatus.CREATED : HttpStatus.OK;
         
         return ResponseEntity.status(status).body(result.watchRequest());
+    }
+
+    @GetMapping
+    public WatchRequestListResponse listWatchRequests(
+            @AuthenticationPrincipal Jwt accessToken,
+            @RequestParam(required = false) String term
+    ) {
+        return new WatchRequestListResponse(watchRequestService.list(accessToken.getSubject(), term));
     }
 
 }

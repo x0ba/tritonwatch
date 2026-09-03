@@ -9,7 +9,7 @@ import type { CatalogCourse, TermOption } from "../lib/types";
 export function AddWatchPage() {
   const navigate = useNavigate();
   const { getToken } = useAccessToken();
-  const { profile, addLocalWatch } = useAppData();
+  const { profile, addLocalWatch, refreshWatches } = useAppData();
   const [terms, setTerms] = useState<TermOption[]>([]);
   const [term, setTerm] = useState("");
   const [query, setQuery] = useState("");
@@ -93,12 +93,14 @@ export function AddWatchPage() {
       });
       addLocalWatch({
         courseId: selected.courseId,
+        term,
         title: selected.title,
         openSeats: selected.openSeats,
         waitlist: selected.waitlist,
         watchingSince: new Date().toISOString(),
         seatsOpen: selected.openSeats > 0,
       });
+      void refreshWatches();
       void navigate("/watchlist");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create watch");

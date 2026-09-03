@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +33,27 @@ public class CourseCatalogService {
                 normalizedQuery,
                 PageRequest.of(0, pageSize)
         );
+    }
+
+    public List<CourseCatalogEntry> findByIds(String term, List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+
+        String normalizedTerm = resolveTerm(term);
+
+        List<String> normalizedIds = ids.stream()
+                .filter(Objects::nonNull)
+                .map(CourseIds::normalize)
+                .filter(id -> !id.isBlank())
+                .distinct()
+                .toList();
+
+        if (normalizedIds.isEmpty()) {
+            return List.of();
+        }
+
+        return courseCatalogRepository.findByTermAndCourseIdIn(normalizedTerm, normalizedIds);
     }
 
     public List<TermOption> listTerms() {

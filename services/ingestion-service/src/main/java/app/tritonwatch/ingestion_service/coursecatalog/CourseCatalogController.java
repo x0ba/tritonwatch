@@ -1,6 +1,7 @@
 package app.tritonwatch.ingestion_service.coursecatalog;
 
 import app.tritonwatch.ingestion_service.coursecatalog.dto.CourseCatalogItemResponse;
+import app.tritonwatch.ingestion_service.coursecatalog.dto.CourseLookupApiResponse;
 import app.tritonwatch.ingestion_service.coursecatalog.dto.CourseSearchApiResponse;
 import app.tritonwatch.ingestion_service.coursecatalog.dto.TermOptionResponse;
 import app.tritonwatch.ingestion_service.coursecatalog.dto.TermsApiResponse;
@@ -43,6 +44,28 @@ public class CourseCatalogController {
                 .toList();
 
         return new CourseSearchApiResponse(resolvedTerm, q.trim(), courses.size(), courses);
+    }
+
+    @GetMapping("/courses/lookup")
+    public CourseLookupApiResponse lookupCourses(
+            @RequestParam(required = false) String term,
+            @RequestParam(required = false) List<String> ids
+    ) {
+        String resolvedTerm = term == null || term.isBlank()
+                ? courseCatalogService.currentTerm()
+                : term.trim().toUpperCase();
+
+        List<String> requestedIds = ids == null ? List.of() : ids;
+        List<CourseCatalogItemResponse> courses = courseCatalogService.findByIds(term, requestedIds).stream()
+                .map(entry -> new CourseCatalogItemResponse(
+                        entry.getCourseId(),
+                        entry.getTitle(),
+                        entry.getOpenSeatCount(),
+                        entry.getWaitlistCount()
+                ))
+                .toList();
+
+        return new CourseLookupApiResponse(resolvedTerm, courses.size(), courses);
     }
 
     @GetMapping("/terms")

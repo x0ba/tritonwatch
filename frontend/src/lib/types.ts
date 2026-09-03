@@ -56,7 +56,9 @@ export type CatalogCourse = {
 };
 
 export type WatchlistItem = {
+  id?: string;
   courseId: string;
+  term: string;
   title: string;
   openSeats: number;
   waitlist: number;

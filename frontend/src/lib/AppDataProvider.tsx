@@ -5,12 +5,15 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { getMe, upsertMe } from "./api";
+import { getMe, loadWatchlistItems, upsertMe } from "./api";
 import type { UserProfile, WatchlistItem } from "./types";
 import { useAccessToken } from "./useAccessToken";
+
+export const WATCHLIST_REFRESH_INTERVAL_MS = 2 * 60 * 1000;
 
 type AppDataContextValue = {
   profile: UserProfile | null;
@@ -19,6 +22,10 @@ type AppDataContextValue = {
   refreshProfile: () => Promise<void>;
   setProfile: (profile: UserProfile | null) => void;
   watches: WatchlistItem[];
+  watchesLoading: boolean;
+  watchesError: string | null;
+  watchesLastRefreshedAt: string | null;
+  refreshWatches: () => Promise<void>;
   addLocalWatch: (item: WatchlistItem) => void;
 };
 
@@ -32,6 +39,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [watches, setWatches] = useState<WatchlistItem[]>([]);
+  const [watchesLoading, setWatchesLoading] = useState(false);
+  const [watchesError, setWatchesError] = useState<string | null>(null);
+  const [watchesLastRefreshedAt, setWatchesLastRefreshedAt] = useState<string | null>(null);
+  const watchRefreshGeneration = useRef(0);
 
   const refreshProfile = useCallback(async () => {
     if (!isSignedIn) {
@@ -58,18 +69,55 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   }, [getToken, isSignedIn, user?.fullName, user?.primaryEmailAddress?.emailAddress]);
 
+  const refreshWatches = useCallback(async () => {
+    if (!isSignedIn) {
+      watchRefreshGeneration.current += 1;
+      setWatches([]);
+      setWatchesError(null);
+      setWatchesLastRefreshedAt(null);
+      return;
+    }
+
+    const generation = ++watchRefreshGeneration.current;
+    setWatchesLoading(true);
+    setWatchesError(null);
+    try {
+      const token = await getToken();
+      const next = await loadWatchlistItems(token);
+      if (generation !== watchRefreshGeneration.current) {
+        return;
+      }
+      setWatches(next);
+      setWatchesLastRefreshedAt(new Date().toISOString());
+    } catch (error) {
+      if (generation !== watchRefreshGeneration.current) {
+        return;
+      }
+      setWatchesError(error instanceof Error ? error.message : "Failed to load watchlist");
+    } finally {
+      if (generation === watchRefreshGeneration.current) {
+        setWatchesLoading(false);
+      }
+    }
+  }, [getToken, isSignedIn]);
+
   useEffect(() => {
     if (!isLoaded) return;
     if (!isSignedIn) {
       setProfile(null);
+      watchRefreshGeneration.current += 1;
+      setWatches([]);
+      setWatchesError(null);
+      setWatchesLastRefreshedAt(null);
       return;
     }
     void refreshProfile();
-  }, [isLoaded, isSignedIn, refreshProfile]);
+    void refreshWatches();
+  }, [isLoaded, isSignedIn, refreshProfile, refreshWatches]);
 
   const addLocalWatch = useCallback((item: WatchlistItem) => {
     setWatches((current) => {
-      if (current.some((watch) => watch.courseId === item.courseId)) {
+      if (current.some((watch) => watch.courseId === item.courseId && watch.term === item.term)) {
         return current;
       }
       return [item, ...current];
@@ -84,9 +132,24 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       refreshProfile,
       setProfile,
       watches,
+      watchesLoading,
+      watchesError,
+      watchesLastRefreshedAt,
+      refreshWatches,
       addLocalWatch,
     }),
-    [addLocalWatch, profile, profileError, profileLoading, refreshProfile, watches],
+    [
+      addLocalWatch,
+      profile,
+      profileError,
+      profileLoading,
+      refreshProfile,
+      refreshWatches,
+      watches,
+      watchesError,
+      watchesLastRefreshedAt,
+      watchesLoading,
+    ],
   );
 
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
