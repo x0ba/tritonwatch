@@ -21,9 +21,7 @@ export function WatchlistPage() {
           setTermCode(current.code);
         }
       })
-      .catch(() => {
-        // Keep fallback label if catalog is unreachable.
-      });
+      .catch(() => {});
     return () => controller.abort();
   }, []);
 

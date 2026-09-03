@@ -3,7 +3,6 @@ data "aws_caller_identity" "current" {}
 locals {
   frontend_bucket_name = "${var.project_name}-${var.environment}-frontend-${data.aws_caller_identity.current.account_id}"
   has_route53          = var.route53_zone_id != null
-  # Prefer a stable origin hostname when DNS is managed; otherwise use the Elastic IP.
   api_origin_domain_name = local.has_route53 ? "origin.${var.domain_name}" : aws_eip.ecs_host.public_ip
   app_url                = local.has_route53 ? "https://${var.domain_name}" : "https://${aws_cloudfront_distribution.app.domain_name}"
 }
