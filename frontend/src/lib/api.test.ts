@@ -82,4 +82,45 @@ describe("loadWatchlistItems", () => {
       seatsOpen: true,
     });
   });
+
+  it("keeps watches from every term when no term filter is passed", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), "http://localhost");
+      if (url.pathname === "/api/v1/watch-requests") {
+        expect(url.searchParams.has("term")).toBe(false);
+        return jsonResponse({
+          watches: [
+            {
+              id: "watch-fa",
+              courseId: "CSE 11",
+              term: "FA26",
+              createdAt: "2026-09-01T00:00:00Z",
+            },
+            {
+              id: "watch-sp",
+              courseId: "CSE 101",
+              term: "SP26",
+              createdAt: "2026-09-02T00:00:00Z",
+            },
+          ],
+        });
+      }
+
+      const term = url.searchParams.get("term");
+      const courseId = term === "SP26" ? "CSE 101" : "CSE 11";
+      return jsonResponse({
+        term,
+        count: 1,
+        courses: [{ courseId, title: courseId, openSeats: 4, waitlist: 0 }],
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const items = await loadWatchlistItems("token");
+
+    expect(items.map((item) => `${item.term}:${item.courseId}`)).toEqual([
+      "FA26:CSE 11",
+      "SP26:CSE 101",
+    ]);
+  });
 });

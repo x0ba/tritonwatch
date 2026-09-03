@@ -5,16 +5,8 @@ import { useAppData, WATCHLIST_REFRESH_INTERVAL_MS } from "../lib/AppDataProvide
 import { formatCheckedAt, formatWatchingSince } from "../lib/format";
 
 export function WatchlistPage() {
-  const {
-    watches,
-    watchesLoading,
-    watchesError,
-    watchesLastRefreshedAt,
-    watchesTerm,
-    refreshWatches,
-  } = useAppData();
-  const termLabel = watchesTerm?.label ?? "Current term";
-  const termCode = watchesTerm?.code ?? "";
+  const { watches, watchesLoading, watchesError, watchesLastRefreshedAt, refreshWatches } =
+    useAppData();
   const [checkedLabel, setCheckedLabel] = useState(() => formatCheckedAt(watchesLastRefreshedAt));
 
   useEffect(() => {
@@ -51,10 +43,7 @@ export function WatchlistPage() {
     <div>
       <section className="flex items-end justify-between px-18 pb-10 pt-18">
         <div className="flex flex-col gap-3.5">
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted">
-            {termLabel}
-            {termCode ? ` · ${termCode}` : ""}
-          </p>
+          <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted">Watchlist</p>
           <h1 className="text-[64px] font-medium leading-16 tracking-[-0.03em] text-ink">
             Watching {watches.length} course{watches.length === 1 ? "" : "s"}
           </h1>
@@ -71,6 +60,9 @@ export function WatchlistPage() {
         <div className="w-2.5 shrink-0" />
         <div className="w-30 shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-muted">
           Course
+        </div>
+        <div className="w-16 shrink-0 text-xs font-medium uppercase tracking-[0.08em] text-muted">
+          Term
         </div>
         <div className="grow text-xs font-medium uppercase tracking-[0.08em] text-muted">Title</div>
         <div className="w-25 shrink-0 text-right text-xs font-medium uppercase tracking-[0.08em] text-muted">
@@ -105,6 +97,9 @@ export function WatchlistPage() {
             <StatusDot tone={watch.seatsOpen ? "open" : "watching"} />
             <div className="w-30 shrink-0 font-mono text-[15px] font-medium leading-[18px] text-ink">
               {watch.courseId}
+            </div>
+            <div className="w-16 shrink-0 font-mono text-[15px] font-medium leading-[18px] text-muted">
+              {watch.term}
             </div>
             <div className="flex grow items-center gap-3">
               <span className="text-[17px] leading-[22px] tracking-[-0.01em] text-ink">
