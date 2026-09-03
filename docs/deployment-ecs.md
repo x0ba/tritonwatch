@@ -114,8 +114,9 @@ IMAGE_TAG="$(git rev-parse --short HEAD)"
 ./scripts/build-and-push-ecs-images.sh "$IMAGE_TAG"
 ```
 
-The script builds Linux AMD64 images for all four services, PostgreSQL, Kafka, and Caddy, then pushes them to ECR.
-Rebuild Caddy whenever `infra/production/Caddyfile` changes.
+The script publishes Linux AMD64 images for the four services, PostgreSQL, Kafka, and Caddy. Unchanged images
+are retagged from a content-hash tag in ECR instead of rebuilt. Pass image names after the tag to publish a
+subset; Java services that do rebuild run in parallel. Rebuild Caddy whenever `infra/production/Caddyfile` changes.
 
 ## 4. Configure DNS
 
@@ -179,13 +180,16 @@ aws ssm start-session --target "$INSTANCE_ID"
 
 ## Deploying an update
 
-Always push a new immutable image tag:
+Always push a new immutable image tag when the API or infra images change:
 
 ```bash
 IMAGE_TAG="$(git rev-parse --short HEAD)"
 ./scripts/build-and-push-ecs-images.sh "$IMAGE_TAG"
 ./scripts/deploy-ecs.sh "$IMAGE_TAG"
 ```
+
+The build script skips `docker buildx` when an image's source hash already exists in ECR and retags that
+digest. Frontend-only production deploys skip this path entirely.
 
 Because port 80 is fixed on one EC2 host, the ECS service uses a stop-then-start deployment. Expect a short
 downtime during updates.

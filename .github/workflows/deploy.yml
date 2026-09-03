@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: Rebuild all images even when content hashes match
+        type: boolean
+        default: false
 
 concurrency:
   group: production
@@ -12,15 +17,67 @@ concurrency:
 permissions:
   contents: read
   id-token: write
+  actions: write
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      ecs: ${{ steps.result.outputs.ecs }}
+      frontend: ${{ steps.result.outputs.frontend }}
+      deploy: ${{ steps.result.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
+          fetch-depth: 2
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name == 'push'
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - 'scripts/deploy-frontend.sh'
+            ecs:
+              - 'services/**'
+              - 'shared/**'
+              - 'infra/production/**'
+              - 'infra/kafka/**'
+              - 'infra/aws-ecs/**'
+              - '.dockerignore'
+              - 'scripts/build-and-push-ecs-images.sh'
+              - 'scripts/deploy-ecs.sh'
+
+      - id: result
+        run: |
+          if [[ "${{ github.event_name }}" != "push" ]]; then
+            echo "ecs=true" >> "$GITHUB_OUTPUT"
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          ecs="${{ steps.filter.outputs.ecs }}"
+          frontend="${{ steps.filter.outputs.frontend }}"
+          echo "ecs=${ecs}" >> "$GITHUB_OUTPUT"
+          echo "frontend=${frontend}" >> "$GITHUB_OUTPUT"
+          if [[ "$ecs" == "true" || "$frontend" == "true" ]]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+
   deploy:
+    needs: changes
+    if: needs.changes.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     environment: production
     env:
       AWS_REGION: us-west-1
       TF_IN_AUTOMATION: "true"
       VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+      FORCE_REBUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.force_rebuild && '1' || '0' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,12 +92,15 @@ jobs:
           terraform_version: "1.16.1"
 
       - uses: docker/setup-buildx-action@v3
+        if: needs.changes.outputs.ecs == 'true'
 
       - uses: pnpm/action-setup@v4
+        if: needs.changes.outputs.frontend == 'true'
         with:
           version: 11
 
       - uses: actions/setup-node@v4
+        if: needs.changes.outputs.frontend == 'true'
         with:
           node-version: 22
           cache: pnpm
@@ -56,16 +116,23 @@ jobs:
           fi
           printenv TFVARS > infra/aws-ecs/terraform.tfvars
 
-      - name: Build, push, and deploy
+      - name: Init Terraform
         run: |
           terraform -chdir=infra/aws-ecs init -input=false
           AWS_REGION="$(terraform -chdir=infra/aws-ecs output -raw aws_region)"
-          export AWS_REGION
+          echo "AWS_REGION=${AWS_REGION}" >> "$GITHUB_ENV"
+          echo "image_tag=${GITHUB_SHA::12}" >> "$GITHUB_ENV"
           echo "Using AWS region ${AWS_REGION}"
-          image_tag="${GITHUB_SHA::12}"
+
+      - name: Build, push, and deploy ECS
+        if: needs.changes.outputs.ecs == 'true'
+        run: |
           ./scripts/build-and-push-ecs-images.sh "$image_tag"
           ./scripts/deploy-ecs.sh "$image_tag"
-          ./scripts/deploy-frontend.sh
+
+      - name: Deploy frontend
+        if: needs.changes.outputs.frontend == 'true'
+        run: ./scripts/deploy-frontend.sh
 
       - name: Smoke test
         run: |

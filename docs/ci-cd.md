@@ -12,12 +12,15 @@ Pull request
   └─ CI: Gradle unit tests, frontend typecheck, terraform plan (read-only role)
 
 main or "Run workflow"
-  └─ Deploy production (GitHub Environment protection)
-        ├─ OIDC → tritonwatch-production-github-deploy
-        ├─ ./scripts/build-and-push-ecs-images.sh $GITHUB_SHA
-        ├─ ./scripts/deploy-ecs.sh $GITHUB_SHA
-        ├─ ./scripts/deploy-frontend.sh
-        └─ curl https://tritonwatch.app/health/{user,watchlist,ingestion}
+  └─ Deploy production
+        ├─ Path filter: skip ECS and/or frontend when those trees did not change
+        └─ If anything deploys (GitHub Environment protection)
+              ├─ OIDC → tritonwatch-production-github-deploy
+              ├─ ECS path (services, shared, infra images, or Terraform):
+              │     ├─ ./scripts/build-and-push-ecs-images.sh $GITHUB_SHA
+              │     └─ ./scripts/deploy-ecs.sh $GITHUB_SHA
+              ├─ Frontend path: ./scripts/deploy-frontend.sh
+              └─ curl https://tritonwatch.app/health/{user,watchlist,ingestion}
 ```
 
 There are no long-lived AWS access keys in GitHub. The deploy role can only be
@@ -188,6 +191,19 @@ two deploys from overlapping.
 - Open a PR. CI runs tests and `terraform plan`.
 - Merge to `main`. Deploy starts after environment approval.
 - Or run **Actions → Deploy production → Run workflow**.
+
+Frontend-only commits skip the ECS image build and task recycle, so the API stays
+up. Docs-only commits skip the production environment job entirely.
+
+`build-and-push-ecs-images.sh` hashes each image's inputs. An unchanged
+Postgres, Kafka, Caddy, or Java service is retagged to the new SHA instead of
+rebuilt. Java images that do rebuild use BuildKit layer cache (`type=gha` in
+Actions) and a Gradle cache mount, and the four services build in parallel.
+
+A manual run deploys both ECS and the SPA. Check **Rebuild all images** only
+when you need to ignore content-hash hits (for example after deleting ECR
+tags). `FORCE_REBUILD=1` and `DOCKER_CACHE=gha|registry|none` also work when
+you run the script locally.
 
 Do not apply infrastructure experiments from your laptop against a different
 state file. After migration, every apply must use the S3 backend.

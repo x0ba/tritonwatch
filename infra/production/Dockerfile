@@ -20,7 +20,8 @@ COPY services/${SERVICE_NAME}/src ./services/${SERVICE_NAME}/src
 
 WORKDIR /workspace/services/${SERVICE_NAME}
 
-RUN chmod +x gradlew \
+RUN --mount=type=cache,id=gradle-${SERVICE_NAME},target=/root/.gradle \
+    chmod +x gradlew \
     && ./gradlew bootJar --no-daemon \
     && jar_path="$(find build/libs \
         -maxdepth 1 \
