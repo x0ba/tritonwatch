@@ -2,8 +2,8 @@
 set -euo pipefail
 
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+terraform_directory="$repository_root/infra/aws-ecs"
 image_tag="${1:-$(git -C "$repository_root" rev-parse --short HEAD)}"
-aws_region="${AWS_REGION:-${AWS_DEFAULT_REGION:-us-west-2}}"
 project_name="${PROJECT_NAME:-tritonwatch}"
 target_platform="${TARGET_PLATFORM:-linux/amd64}"
 
@@ -12,12 +12,19 @@ if [[ ! "$image_tag" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; then
   exit 1
 fi
 
-for command_name in aws docker; do
+for command_name in aws docker terraform; do
   if ! command -v "$command_name" >/dev/null 2>&1; then
     echo "Required command is not installed: $command_name" >&2
     exit 1
   fi
 done
+
+if [[ -n "${AWS_REGION:-${AWS_DEFAULT_REGION:-}}" ]]; then
+  aws_region="${AWS_REGION:-$AWS_DEFAULT_REGION}"
+elif [[ -d "$terraform_directory" ]]; then
+  aws_region="$(terraform -chdir="$terraform_directory" output -raw aws_region 2>/dev/null || true)"
+fi
+aws_region="${aws_region:-us-west-2}"
 
 account_id="$(aws sts get-caller-identity --query Account --output text)"
 registry="${account_id}.dkr.ecr.${aws_region}.amazonaws.com"
@@ -67,15 +74,14 @@ for service_name in "${application_services[@]}"; do
     "$repository_root"
 done
 
-declare -A infrastructure_dockerfiles=(
-  [postgres]="Dockerfile.postgres"
-  [kafka]="Dockerfile.kafka"
-  [caddy]="Dockerfile.caddy"
-)
-
 for image_name in postgres kafka caddy; do
+  case "$image_name" in
+    postgres) dockerfile="Dockerfile.postgres" ;;
+    kafka) dockerfile="Dockerfile.kafka" ;;
+    caddy) dockerfile="Dockerfile.caddy" ;;
+  esac
+
   image_uri="${registry}/${project_name}/${image_name}:${image_tag}"
-  dockerfile="${infrastructure_dockerfiles[$image_name]}"
 
   echo "Building and pushing $image_uri"
   docker buildx build \
