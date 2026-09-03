@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      AWS_REGION: us-west-2
+      AWS_REGION: us-west-1
       TF_IN_AUTOMATION: "true"
       VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
     steps:
@@ -27,7 +27,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: us-west-2
+          aws-region: us-west-1
           audience: sts.amazonaws.com
 
       - uses: hashicorp/setup-terraform@v3
@@ -58,6 +58,10 @@ jobs:
 
       - name: Build, push, and deploy
         run: |
+          terraform -chdir=infra/aws-ecs init -input=false
+          AWS_REGION="$(terraform -chdir=infra/aws-ecs output -raw aws_region)"
+          export AWS_REGION
+          echo "Using AWS region ${AWS_REGION}"
           image_tag="${GITHUB_SHA::12}"
           ./scripts/build-and-push-ecs-images.sh "$image_tag"
           ./scripts/deploy-ecs.sh "$image_tag"

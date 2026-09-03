@@ -19,12 +19,10 @@ for command_name in aws docker terraform; do
   fi
 done
 
-if [[ -n "${AWS_REGION:-${AWS_DEFAULT_REGION:-}}" ]]; then
-  aws_region="${AWS_REGION:-$AWS_DEFAULT_REGION}"
-elif [[ -d "$terraform_directory" ]]; then
+if [[ -d "$terraform_directory" ]]; then
   aws_region="$(terraform -chdir="$terraform_directory" output -raw aws_region 2>/dev/null || true)"
 fi
-aws_region="${aws_region:-us-west-2}"
+aws_region="${aws_region:-${AWS_REGION:-${AWS_DEFAULT_REGION:-us-west-1}}}"
 
 account_id="$(aws sts get-caller-identity --query Account --output text)"
 registry="${account_id}.dkr.ecr.${aws_region}.amazonaws.com"

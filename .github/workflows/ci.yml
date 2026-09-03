@@ -71,7 +71,7 @@ jobs:
       contents: read
       id-token: write
     env:
-      AWS_REGION: us-west-2
+      AWS_REGION: us-west-1
       TF_IN_AUTOMATION: "true"
     steps:
       - uses: actions/checkout@v4
@@ -79,7 +79,7 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_CI_ROLE_ARN }}
-          aws-region: us-west-2
+          aws-region: us-west-1
           audience: sts.amazonaws.com
 
       - uses: hashicorp/setup-terraform@v3
