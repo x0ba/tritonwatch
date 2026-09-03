@@ -62,7 +62,7 @@ vp dev
 
 ## Deployment
 
-The [production deployment](https://tritonwatch.app) is deployed on a single `t3a.medium` in ECS (`us-west-2`). I didn't wanna pay **$500+ dollars per month** (wtf), so Postgres and Kafka are containers on that instance too. Their data is on the instance disk at `/opt/tritonwatch`. AWS Backup snapshots the whole machine daily and keeps seven days.
+The [production deployment](https://tritonwatch.app) is deployed on a single `t3a.medium` in ECS (`us-west-2`). I didn't wanna pay **$500+ dollars per month** (wtf) for MSK and RDS, so Postgres and Kafka are containers on that instance too. Their data is on the instance disk at `/opt/tritonwatch`. AWS Backup snapshots the whole machine daily and keeps seven days.
 
 The frontend is served on CloudFront. The Vite build is stored in a private S3 bucket. `/api/*` and `/health/*` go to Caddy on the instance, which proxies to the Spring services. The frontend calls `https://tritonwatch.app` for APIs as well, same origin. The security group only lets CloudFront onto port 80. Redis from the local compose file is not in production.
 
