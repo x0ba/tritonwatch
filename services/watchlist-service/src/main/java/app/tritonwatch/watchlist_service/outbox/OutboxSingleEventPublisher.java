@@ -1,7 +1,9 @@
 package app.tritonwatch.watchlist_service.outbox;
 
 import app.tritonwatch.contracts.event.CourseTrackingRequested;
+import app.tritonwatch.contracts.event.CourseTrackingStopped;
 import app.tritonwatch.contracts.event.UserCourseWatchCreated;
+import app.tritonwatch.contracts.event.UserCourseWatchDeleted;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -75,9 +77,17 @@ public class OutboxSingleEventPublisher {
                     event.getPayload(),
                     UserCourseWatchCreated.class
             );
+            case USER_COURSE_WATCH_DELETED -> jsonMapper.readValue(
+                    event.getPayload(),
+                    UserCourseWatchDeleted.class
+            );
             case COURSE_TRACKING_REQUESTED -> jsonMapper.readValue(
                     event.getPayload(),
                     CourseTrackingRequested.class
+            );
+            case COURSE_TRACKING_STOPPED -> jsonMapper.readValue(
+                    event.getPayload(),
+                    CourseTrackingStopped.class
             );
         };
     }

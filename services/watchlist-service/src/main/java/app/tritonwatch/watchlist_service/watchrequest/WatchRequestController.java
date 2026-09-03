@@ -12,6 +12,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/watch-requests")
 @RequiredArgsConstructor
@@ -37,6 +39,15 @@ public class WatchRequestController {
             @RequestParam(required = false) String term
     ) {
         return new WatchRequestListResponse(watchRequestService.list(accessToken.getSubject(), term));
+    }
+
+    @DeleteMapping("/{watchRequestId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteWatchRequest(
+            @AuthenticationPrincipal Jwt accessToken,
+            @PathVariable UUID watchRequestId
+    ) {
+        watchRequestService.delete(accessToken.getSubject(), watchRequestId);
     }
 
 }

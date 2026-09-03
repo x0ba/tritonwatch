@@ -17,7 +17,7 @@ Tritonwatch makes use of an event-driven microservice architecture, using Kafka 
 
 The entire thing is powered by the [UCSD Class Planner's](https://classplanner.apps.ucsd.edu/workspace?term=FA26) public API. 
 
-When a user watches a course, the watchlist microservice saves that watch and fires off an event to the ingestion service. The ingestion service keeps a list of all the courses that everyone using Tritonwatch has watched, and sends that full list on every request to `POST https://classplanner.apps.ucsd.edu/api/v1/catalog/courses/search`. Class Planner paginates search results with a page size of 48, so if more than 48 watched courses match, ingestion walks `offset` until it has collected every page. This runs every 2 minutes, and if a course ever becomes available, an event is sent to the notification microservice which then sends the notification to the user with Postmark and/or Twilio.
+When a user watches a course, the watchlist microservice saves that watch and fires off an event to the ingestion service. The ingestion service keeps a list of all the courses that everyone using Tritonwatch has watched, and sends that full list on every request to `POST https://classplanner.apps.ucsd.edu/api/v1/catalog/courses/search`. Class Planner paginates search results with a page size of 48, so if more than 48 watched courses match, ingestion walks `offset` until it has collected every page. This runs every 2 minutes, and if a course ever becomes available, an event is sent to the notification microservice which then sends the notification to the user with Postmark and/or Twilio. Removing a watch deletes it from that user's list and drops the course from ingestion's poll list once nobody else is watching it.
 
 The search function for courses just calls the same API as the search functionality in the class planner app.
 
@@ -46,7 +46,7 @@ Then start Postgres, Kafka, Redis, the four backend services, and the frontend:
 ./scripts/dev.sh
 ```
 
-Ctrl+C stops the apps and leaves Docker running. `./scripts/dev.sh down` stops the containers. Postgres databases and Kafka topics are created *once* on first compose start; if you add a database or a topic, take the volume down and recreate it.
+Ctrl+C stops the apps and leaves Docker running. `./scripts/dev.sh down` stops the containers. Postgres databases are created on first compose start. Kafka topics are created by `infra/kafka/create-topics.sh` (`--if-not-exists`), so new topics can be added by re-running `kafka-init` without wiping the volume.
 
 ## Deployment
 

@@ -1,6 +1,7 @@
 package app.tritonwatch.notification_service.subscription;
 
 import app.tritonwatch.contracts.event.UserCourseWatchCreated;
+import app.tritonwatch.contracts.event.UserCourseWatchDeleted;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,15 @@ public class SubscriptionService {
     public void create(UserCourseWatchCreated event) {
         subscriptionRepository.insertIfAbsent(
                 UUID.randomUUID(),
+                event.userId(),
+                event.courseId().trim().toUpperCase(Locale.ROOT),
+                event.term().trim().toUpperCase(Locale.ROOT)
+        );
+    }
+
+    @Transactional
+    public void delete(UserCourseWatchDeleted event) {
+        subscriptionRepository.deleteByUserIdAndCourseIdAndTerm(
                 event.userId(),
                 event.courseId().trim().toUpperCase(Locale.ROOT),
                 event.term().trim().toUpperCase(Locale.ROOT)

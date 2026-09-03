@@ -166,6 +166,15 @@ export async function createWatchRequest(
   });
 }
 
+export async function deleteWatchRequest(
+  accessToken: string,
+  watchRequestId: string,
+): Promise<void> {
+  await request<void>(watchlistApiBase(), `/api/v1/watch-requests/${watchRequestId}`, accessToken, {
+    method: "DELETE",
+  });
+}
+
 type WatchRequestListResponse = {
   watches: WatchRequest[];
 };

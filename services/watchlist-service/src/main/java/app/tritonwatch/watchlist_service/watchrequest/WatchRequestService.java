@@ -49,6 +49,29 @@ public class WatchRequestService {
         );
     }
 
+    @Transactional
+    public void delete(String userId, UUID watchRequestId) {
+        WatchRequest watchRequest = watchRequestRepository.findById(watchRequestId)
+                .orElseThrow(WatchRequestNotFoundException::new);
+
+        if (!watchRequest.getUserId().equals(userId)) {
+            throw new WatchRequestNotFoundException();
+        }
+
+        List<WatchRequest> lockedWatches = watchRequestRepository.findAllByCourseIdAndTerm(
+                watchRequest.getCourseId(),
+                watchRequest.getTerm()
+        );
+
+        WatchRequest lockedWatch = lockedWatches.stream()
+                .filter(candidate -> candidate.getId().equals(watchRequestId))
+                .findFirst()
+                .orElseThrow(WatchRequestNotFoundException::new);
+
+        watchRequestRepository.delete(lockedWatch);
+        outboxEventWriter.appendWatchDeletedEvents(lockedWatch, lockedWatches.size() == 1);
+    }
+
     public List<WatchRequestResponse> list(String userId, String term) {
         List<WatchRequest> watchRequests = term == null || term.isBlank()
                 ? watchRequestRepository.findByUserIdOrderByCreatedAtDesc(userId)
