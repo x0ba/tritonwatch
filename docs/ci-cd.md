@@ -23,6 +23,11 @@ main or "Run workflow"
 There are no long-lived AWS access keys in GitHub. The deploy role can only be
 assumed from the `production` environment on `x0ba/tritonwatch`.
 
+This repository was created after 15 July 2026, so GitHub Actions OIDC tokens
+use immutable subject claims (`repo:x0ba@64868985/tritonwatch@1346732326:...`).
+The IAM roles trust both that format and the older `repo:x0ba/tritonwatch:...`
+form.
+
 ## 1. Create the Terraform state bucket
 
 `infra/aws-ecs` now uses an S3 backend. The next `terraform` command will fail

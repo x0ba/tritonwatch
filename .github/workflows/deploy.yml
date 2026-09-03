@@ -28,6 +28,7 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: us-west-2
+          audience: sts.amazonaws.com
 
       - uses: hashicorp/setup-terraform@v3
         with:

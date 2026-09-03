@@ -26,5 +26,7 @@ enable_backups        = true
 backup_retention_days = 7
 
 github_repository           = "x0ba/tritonwatch"
+github_owner_id             = "64868985"
+github_repository_id        = "1346732326"
 github_deploy_environment   = "production"
 create_github_oidc_provider = true

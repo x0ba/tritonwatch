@@ -15,8 +15,19 @@ resource "aws_iam_openid_connect_provider" "github" {
 
 locals {
   github_oidc_provider_arn = var.create_github_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn : data.aws_iam_openid_connect_provider.github[0].arn
-  github_ci_subject        = "repo:${var.github_repository}:*"
-  github_deploy_subject    = "repo:${var.github_repository}:environment:${var.github_deploy_environment}"
+  github_owner_name        = split("/", var.github_repository)[0]
+  github_repository_name   = split("/", var.github_repository)[1]
+  # Repos created after 2026-07-15 emit repo:owner@id/name@id:... instead of repo:owner/name:...
+  github_legacy_sub_prefix    = "repo:${var.github_repository}"
+  github_immutable_sub_prefix = "repo:${local.github_owner_name}@${var.github_owner_id}/${local.github_repository_name}@${var.github_repository_id}"
+  github_ci_subjects = [
+    "${local.github_legacy_sub_prefix}:*",
+    "${local.github_immutable_sub_prefix}:*",
+  ]
+  github_deploy_subjects = [
+    "${local.github_legacy_sub_prefix}:environment:${var.github_deploy_environment}",
+    "${local.github_immutable_sub_prefix}:environment:${var.github_deploy_environment}",
+  ]
 }
 
 data "aws_iam_policy_document" "github_oidc_assume_ci" {
@@ -38,7 +49,7 @@ data "aws_iam_policy_document" "github_oidc_assume_ci" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = [local.github_ci_subject]
+      values   = local.github_ci_subjects
     }
   }
 }
@@ -62,7 +73,7 @@ data "aws_iam_policy_document" "github_oidc_assume_deploy" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = [local.github_deploy_subject]
+      values   = local.github_deploy_subjects
     }
   }
 }

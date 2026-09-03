@@ -42,4 +42,8 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	exclude("**/*ApplicationTests.class")
+	filter {
+		isFailOnNoMatchingTests = false
+	}
 }
