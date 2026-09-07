@@ -2,6 +2,9 @@
 
 WIP: App that alerts students via email or text when their UCSD courses open up.
 
+> [!NOTE]  
+> Unfortunately prod is down till further notice cuz I ran out of AWS credits, will work on finding a cheaper option and bringing this service back up.
+
 ## Architecture
 
 Tritonwatch makes use of an event-driven microservice architecture, using Kafka for communication between microservices.
