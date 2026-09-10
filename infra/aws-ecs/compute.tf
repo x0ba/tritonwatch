@@ -1,3 +1,16 @@
+locals {
+  # New-account Free Tier rejects t3a.medium and allows m7i-flex.large / c7i-flex.large.
+  # Keep those plus the 4 GB burstable types used after Free Tier ends.
+  allowed_instance_types = toset([
+    "t3a.medium",
+    "t3.medium",
+    "t4g.medium",
+    "m7i-flex.large",
+    "c7i-flex.large",
+  ])
+  ecs_instance_type = contains(local.allowed_instance_types, var.instance_type) ? var.instance_type : "m7i-flex.large"
+}
+
 data "aws_ssm_parameter" "ecs_optimized_ami" {
   name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id"
 }
@@ -13,12 +26,12 @@ resource "aws_ecs_cluster" "main" {
 
 resource "aws_cloudwatch_log_group" "application" {
   name              = "/ecs/${var.project_name}/${var.environment}"
-  retention_in_days = 14
+  retention_in_days = 3
 }
 
 resource "aws_instance" "ecs_host" {
   ami                     = data.aws_ssm_parameter.ecs_optimized_ami.value
-  instance_type           = var.instance_type
+  instance_type           = local.ecs_instance_type
   subnet_id               = aws_subnet.public.id
   vpc_security_group_ids  = [aws_security_group.ecs_host.id]
   iam_instance_profile    = aws_iam_instance_profile.ecs_instance.name

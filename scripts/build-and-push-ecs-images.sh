@@ -173,7 +173,9 @@ build_application_image() {
     --tag "$content_uri"
   )
   set_cache_arguments "$service_name"
-  build_args+=("${cache_arguments[@]}")
+  if ((${#cache_arguments[@]})); then
+    build_args+=("${cache_arguments[@]}")
+  fi
 
   echo "Building and pushing $image_uri"
   docker buildx build "${build_args[@]}" "$repository_root"
@@ -203,7 +205,9 @@ build_infra_image() {
     --tag "$content_uri"
   )
   set_cache_arguments "$image_name"
-  build_args+=("${cache_arguments[@]}")
+  if ((${#cache_arguments[@]})); then
+    build_args+=("${cache_arguments[@]}")
+  fi
 
   echo "Building and pushing $image_uri"
   docker buildx build "${build_args[@]}" "$repository_root"

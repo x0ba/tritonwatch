@@ -1,0 +1,10 @@
+# Managed by `skl use` / `skl unuse` / `skl use --all`. Names only — resolve from this machine's library.
+
+[targets]
+canonical = ["agents"]
+extra = ["claude-code"]
+
+[[skills]]
+name = "file-pr"
+source = "library"
+mode = "copy"

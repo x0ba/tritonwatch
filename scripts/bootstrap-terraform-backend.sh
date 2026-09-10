@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-bucket="${TFSTATE_BUCKET:-x0ba-tritonwatch-tfstate}"
+bucket="${TFSTATE_BUCKET:-x0ba-tritonwatch-tfstate-372815112156}"
 region="${AWS_REGION:-${AWS_DEFAULT_REGION:-us-west-2}}"
 
 if ! command -v aws >/dev/null 2>&1; then
