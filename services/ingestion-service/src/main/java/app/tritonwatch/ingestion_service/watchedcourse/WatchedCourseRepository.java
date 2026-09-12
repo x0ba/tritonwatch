@@ -12,6 +12,8 @@ public interface WatchedCourseRepository extends JpaRepository<WatchedCourse, UU
 
     List<WatchedCourse> findAllByTerm(String term);
 
+    void deleteByCourseIdAndTerm(String courseId, String term);
+
     @Modifying
     @Query(value = """
                 INSERT INTO watched_courses (

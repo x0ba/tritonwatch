@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { StatusDot } from "../components/StatusDot";
+import { deleteWatchRequest } from "../lib/api";
 import { useAppData, WATCHLIST_REFRESH_INTERVAL_MS } from "../lib/AppDataProvider";
 import { formatCheckedAt, formatWatchingSince } from "../lib/format";
+import { useAccessToken } from "../lib/useAccessToken";
 
 export function WatchlistPage() {
-  const { watches, watchesLoading, watchesError, watchesLastRefreshedAt, refreshWatches } =
-    useAppData();
+  const { getToken } = useAccessToken();
+  const {
+    watches,
+    watchesLoading,
+    watchesError,
+    watchesLastRefreshedAt,
+    refreshWatches,
+    removeLocalWatch,
+  } = useAppData();
   const [checkedLabel, setCheckedLabel] = useState(() => formatCheckedAt(watchesLastRefreshedAt));
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [removeError, setRemoveError] = useState<string | null>(null);
 
   useEffect(() => {
     void refreshWatches();
@@ -35,6 +46,20 @@ export function WatchlistPage() {
     const intervalId = window.setInterval(updateLabel, 15_000);
     return () => window.clearInterval(intervalId);
   }, [watchesLastRefreshedAt]);
+
+  async function handleRemove(watchRequestId: string) {
+    setRemovingId(watchRequestId);
+    setRemoveError(null);
+    try {
+      const token = await getToken();
+      await deleteWatchRequest(token, watchRequestId);
+      removeLocalWatch(watchRequestId);
+    } catch (error) {
+      setRemoveError(error instanceof Error ? error.message : "Could not remove watch");
+    } finally {
+      setRemovingId(null);
+    }
+  }
 
   const showInitialLoading =
     watchesLoading && watches.length === 0 && !watchesLastRefreshedAt && !watchesError;
@@ -74,9 +99,11 @@ export function WatchlistPage() {
         <div className="w-32_5 shrink-0 text-right text-xs font-medium uppercase tracking-[0.08em] text-muted">
           Watching since
         </div>
+        <div className="w-20 shrink-0" />
       </div>
 
       {watchesError ? <p className="mx-18 py-6 text-sm text-red-700">{watchesError}</p> : null}
+      {removeError ? <p className="mx-18 py-6 text-sm text-red-700">{removeError}</p> : null}
 
       {showInitialLoading ? (
         <p className="mx-18 py-10 text-muted">Loading your watchlist…</p>
@@ -89,43 +116,59 @@ export function WatchlistPage() {
           to get started.
         </p>
       ) : (
-        watches.map((watch) => (
-          <div
-            key={watch.id ?? `${watch.term}:${watch.courseId}`}
-            className="mx-18 flex items-center gap-6 border-b border-line py-[26px]"
-          >
-            <StatusDot tone={watch.seatsOpen ? "open" : "watching"} />
-            <div className="w-30 shrink-0 font-mono text-[15px] font-medium leading-[18px] text-ink">
-              {watch.courseId}
-            </div>
-            <div className="w-16 shrink-0 font-mono text-[15px] font-medium leading-[18px] text-muted">
-              {watch.term}
-            </div>
-            <div className="flex grow items-center gap-3">
-              <span className="text-[17px] leading-[22px] tracking-[-0.01em] text-ink">
-                {watch.title}
-              </span>
-              {watch.seatsOpen ? (
-                <span className="rounded-[3px] border border-open px-[7px] py-[3px] text-[11px] font-semibold uppercase tracking-[0.08em] text-open">
-                  Seats open
-                </span>
-              ) : null}
-            </div>
+        watches.map((watch) => {
+          const watchId = watch.id;
+          return (
             <div
-              className={`w-25 shrink-0 text-right font-mono text-[17px] leading-[22px] ${
-                watch.seatsOpen ? "font-semibold text-open" : "text-ink"
-              }`}
+              key={watchId ?? `${watch.term}:${watch.courseId}`}
+              className="mx-18 flex items-center gap-6 border-b border-line py-[26px]"
             >
-              {watch.openSeats}
+              <StatusDot tone={watch.seatsOpen ? "open" : "watching"} />
+              <div className="w-30 shrink-0 font-mono text-[15px] font-medium leading-[18px] text-ink">
+                {watch.courseId}
+              </div>
+              <div className="w-16 shrink-0 font-mono text-[15px] font-medium leading-[18px] text-muted">
+                {watch.term}
+              </div>
+              <div className="flex grow items-center gap-3">
+                <span className="text-[17px] leading-[22px] tracking-[-0.01em] text-ink">
+                  {watch.title}
+                </span>
+                {watch.seatsOpen ? (
+                  <span className="rounded-[3px] border border-open px-[7px] py-[3px] text-[11px] font-semibold uppercase tracking-[0.08em] text-open">
+                    Seats open
+                  </span>
+                ) : null}
+              </div>
+              <div
+                className={`w-25 shrink-0 text-right font-mono text-[17px] leading-[22px] ${
+                  watch.seatsOpen ? "font-semibold text-open" : "text-ink"
+                }`}
+              >
+                {watch.openSeats}
+              </div>
+              <div className="w-25 shrink-0 text-right font-mono text-[17px] leading-[22px] text-muted">
+                {watch.waitlist}
+              </div>
+              <div className="w-32_5 shrink-0 text-right text-sm leading-[18px] text-muted">
+                {formatWatchingSince(watch.watchingSince)}
+              </div>
+              <div className="w-20 shrink-0 text-right">
+                {watchId ? (
+                  <button
+                    type="button"
+                    onClick={() => void handleRemove(watchId)}
+                    disabled={removingId === watchId}
+                    aria-label={`Remove ${watch.courseId} from watchlist`}
+                    className="text-sm leading-[18px] text-muted underline disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  >
+                    {removingId === watchId ? "Removing…" : "Remove"}
+                  </button>
+                ) : null}
+              </div>
             </div>
-            <div className="w-25 shrink-0 text-right font-mono text-[17px] leading-[22px] text-muted">
-              {watch.waitlist}
-            </div>
-            <div className="w-32_5 shrink-0 text-right text-sm leading-[18px] text-muted">
-              {formatWatchingSince(watch.watchingSince)}
-            </div>
-          </div>
-        ))
+          );
+        })
       )}
 
       <div className="mx-18 mt-7 flex items-center gap-2">

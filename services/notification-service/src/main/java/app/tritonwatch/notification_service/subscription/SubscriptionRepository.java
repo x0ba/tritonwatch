@@ -14,6 +14,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
 
     List<Subscription> findByCourseIdAndTerm(String courseId, String term);
 
+    void deleteByUserIdAndCourseIdAndTerm(String userId, String courseId, String term);
+
     @Modifying
     @Query(value = """
                 INSERT INTO subscriptions (

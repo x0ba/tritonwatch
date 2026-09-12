@@ -27,6 +27,7 @@ type AppDataContextValue = {
   watchesLastRefreshedAt: string | null;
   refreshWatches: () => Promise<void>;
   addLocalWatch: (item: WatchlistItem) => void;
+  removeLocalWatch: (watchRequestId: string) => void;
 };
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);
@@ -124,6 +125,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const removeLocalWatch = useCallback((watchRequestId: string) => {
+    setWatches((current) => current.filter((watch) => watch.id !== watchRequestId));
+  }, []);
+
   const value = useMemo(
     () => ({
       profile,
@@ -137,9 +142,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       watchesLastRefreshedAt,
       refreshWatches,
       addLocalWatch,
+      removeLocalWatch,
     }),
     [
       addLocalWatch,
+      removeLocalWatch,
       profile,
       profileError,
       profileLoading,

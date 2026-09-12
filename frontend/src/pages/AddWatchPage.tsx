@@ -87,17 +87,18 @@ export function AddWatchPage() {
     setError(null);
     try {
       const token = await getToken();
-      await createWatchRequest(token, {
+      const created = await createWatchRequest(token, {
         courseId: selected.courseId,
         term,
       });
       addLocalWatch({
+        id: created.id,
         courseId: selected.courseId,
         term,
         title: selected.title,
         openSeats: selected.openSeats,
         waitlist: selected.waitlist,
-        watchingSince: new Date().toISOString(),
+        watchingSince: created.createdAt,
         seatsOpen: selected.openSeats > 0,
       });
       void refreshWatches();

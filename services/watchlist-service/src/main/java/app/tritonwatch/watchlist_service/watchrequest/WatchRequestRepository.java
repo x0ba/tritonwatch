@@ -1,6 +1,8 @@
 package app.tritonwatch.watchlist_service.watchrequest;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +17,9 @@ public interface WatchRequestRepository extends JpaRepository<WatchRequest, UUID
     List<WatchRequest> findByUserIdOrderByCreatedAtDesc(String userId);
 
     List<WatchRequest> findByUserIdAndTermOrderByCreatedAtDesc(String userId, String term);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<WatchRequest> findAllByCourseIdAndTerm(String courseId, String term);
 
     @Modifying
     @Query(value = """

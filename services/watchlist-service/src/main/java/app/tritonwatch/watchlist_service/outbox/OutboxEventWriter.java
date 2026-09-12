@@ -1,7 +1,9 @@
 package app.tritonwatch.watchlist_service.outbox;
 
 import app.tritonwatch.contracts.event.CourseTrackingRequested;
+import app.tritonwatch.contracts.event.CourseTrackingStopped;
 import app.tritonwatch.contracts.event.UserCourseWatchCreated;
+import app.tritonwatch.contracts.event.UserCourseWatchDeleted;
 import app.tritonwatch.contracts.kafka.KafkaTopics;
 import app.tritonwatch.watchlist_service.watchrequest.WatchRequest;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,6 +71,60 @@ public class OutboxEventWriter {
         outboxEventRepository.saveAll(List.of(
                 watchCreatedOutboxEvent,
                 trackingRequestedOutboxEvent
+        ));
+    }
+
+    public void appendWatchDeletedEvents(WatchRequest request, boolean lastWatcher) {
+        String key = request.getCourseId() + ":" + request.getTerm();
+        Instant occurredAt = Instant.now();
+
+        UUID watchDeletedEventId = UUID.randomUUID();
+        var watchDeletedEvent = new UserCourseWatchDeleted(
+                watchDeletedEventId,
+                occurredAt,
+                request.getUserId(),
+                request.getCourseId(),
+                request.getTerm()
+        );
+
+        OutboxEvent watchDeletedOutboxEvent = OutboxEvent.pending(
+                watchDeletedEventId,
+                WATCH_REQUEST_AGGREGATE,
+                request.getId(),
+                OutboxEventType.USER_COURSE_WATCH_DELETED,
+                KafkaTopics.USER_COURSE_WATCH_DELETED,
+                key,
+                serialize(watchDeletedEvent),
+                watchDeletedEvent.occurredAt()
+        );
+
+        if (!lastWatcher) {
+            outboxEventRepository.save(watchDeletedOutboxEvent);
+            return;
+        }
+
+        UUID trackingStoppedEventId = UUID.randomUUID();
+        var trackingStoppedEvent = new CourseTrackingStopped(
+                trackingStoppedEventId,
+                occurredAt,
+                request.getCourseId(),
+                request.getTerm()
+        );
+
+        OutboxEvent trackingStoppedOutboxEvent = OutboxEvent.pending(
+                trackingStoppedEventId,
+                WATCH_REQUEST_AGGREGATE,
+                request.getId(),
+                OutboxEventType.COURSE_TRACKING_STOPPED,
+                KafkaTopics.COURSE_TRACKING_STOPPED,
+                key,
+                serialize(trackingStoppedEvent),
+                trackingStoppedEvent.occurredAt()
+        );
+
+        outboxEventRepository.saveAll(List.of(
+                watchDeletedOutboxEvent,
+                trackingStoppedOutboxEvent
         ));
     }
 

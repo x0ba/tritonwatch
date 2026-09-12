@@ -27,6 +27,8 @@ create_compacted_topic() {
 }
 
 create_topic tritonwatch.user-course-watch-created.v1
+create_topic tritonwatch.user-course-watch-deleted.v1
 create_topic tritonwatch.course-tracking-requested.v1
+create_topic tritonwatch.course-tracking-stopped.v1
 create_topic tritonwatch.course-section-became-available.v1
 create_compacted_topic tritonwatch.user-notification-settings-updated.v1
