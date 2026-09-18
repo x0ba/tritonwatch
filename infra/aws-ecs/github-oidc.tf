@@ -106,13 +106,13 @@ data "aws_iam_policy_document" "github_ci_state" {
       "s3:PutObject",
       "s3:DeleteObject",
     ]
-    resources = ["arn:aws:s3:::x0ba-tritonwatch-tfstate/aws-ecs/production/*"]
+    resources = ["arn:aws:s3:::x0ba-tritonwatch-tfstate-372815112156/aws-ecs/production/*"]
   }
 
   statement {
     sid       = "TerraformStateList"
     actions   = ["s3:ListBucket", "s3:GetBucketVersioning"]
-    resources = ["arn:aws:s3:::x0ba-tritonwatch-tfstate"]
+    resources = ["arn:aws:s3:::x0ba-tritonwatch-tfstate-372815112156"]
   }
 }
 

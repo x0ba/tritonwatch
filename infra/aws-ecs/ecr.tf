@@ -32,11 +32,11 @@ resource "aws_ecr_lifecycle_policy" "images" {
   policy = jsonencode({
     rules = [{
       rulePriority = 1
-      description  = "Keep the ten newest images"
+      description  = "Keep the three newest images"
       selection = {
         tagStatus   = "any"
         countType   = "imageCountMoreThan"
-        countNumber = 10
+        countNumber = 3
       }
       action = {
         type = "expire"

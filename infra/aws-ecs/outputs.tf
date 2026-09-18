@@ -56,6 +56,11 @@ output "ecs_instance_id" {
   value       = aws_instance.ecs_host.id
 }
 
+output "ecs_instance_type" {
+  description = "Effective ECS host type after the allowed-type filter."
+  value       = local.ecs_instance_type
+}
+
 output "ecr_repository_urls" {
   value = {
     for name, repository in aws_ecr_repository.images : name => repository.repository_url

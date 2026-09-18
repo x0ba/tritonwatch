@@ -3,6 +3,8 @@ availability_zone = "us-west-2a"
 
 project_name  = "tritonwatch"
 environment   = "production"
+# Free-plan accounts can only launch m7i-flex.large / c7i-flex.large.
+# After upgrading to Paid, t3a.medium (~$27 compute) is the cheap path.
 instance_type = "t3a.medium"
 
 # Keep false for the first apply. Push images, then change it to true.
@@ -22,7 +24,7 @@ route53_zone_id = null
 budget_email       = "admin@tritonwatch.app"
 monthly_budget_usd = 50
 
-enable_backups        = true
+enable_backups        = false
 backup_retention_days = 7
 
 github_repository           = "x0ba/tritonwatch"

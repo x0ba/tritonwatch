@@ -3,7 +3,8 @@ data "aws_caller_identity" "current" {}
 locals {
   frontend_bucket_name   = "${var.project_name}-${var.environment}-frontend-${data.aws_caller_identity.current.account_id}"
   has_route53            = var.route53_zone_id != null
-  api_origin_domain_name = local.has_route53 ? "origin.${var.domain_name}" : aws_eip.ecs_host.public_ip
+  # CloudFront origins must be hostnames, not raw IPs.
+  api_origin_domain_name = local.has_route53 ? "origin.${var.domain_name}" : aws_eip.ecs_host.public_dns
   app_url                = local.has_route53 ? "https://${var.domain_name}" : "https://${aws_cloudfront_distribution.app.domain_name}"
 }
 
@@ -72,7 +73,7 @@ resource "aws_s3_bucket_versioning" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
   versioning_configuration {
-    status = "Enabled"
+    status = "Suspended"
   }
 }
 
@@ -86,7 +87,7 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
 
 resource "aws_acm_certificate" "app" {
   count    = local.has_route53 ? 1 : 0
-  provider = aws.us_west_1
+  provider = aws.us_east_1
 
   domain_name       = var.domain_name
   validation_method = "DNS"
@@ -97,26 +98,30 @@ resource "aws_acm_certificate" "app" {
 }
 
 resource "aws_route53_record" "app_certificate_validation" {
-  for_each = local.has_route53 ? {
-    for option in aws_acm_certificate.app[0].domain_validation_options :
-    option.domain_name => {
-      name  = option.resource_record_name
-      type  = option.resource_record_type
-      value = option.resource_record_value
-    }
-  } : {}
+  for_each = local.has_route53 ? toset([var.domain_name]) : toset([])
 
   allow_overwrite = true
   zone_id         = var.route53_zone_id
-  name            = each.value.name
-  type            = each.value.type
-  ttl             = 60
-  records         = [each.value.value]
+  name = one([
+    for option in aws_acm_certificate.app[0].domain_validation_options :
+    option.resource_record_name if option.domain_name == each.value
+  ])
+  type = one([
+    for option in aws_acm_certificate.app[0].domain_validation_options :
+    option.resource_record_type if option.domain_name == each.value
+  ])
+  ttl = 60
+  records = [
+    one([
+      for option in aws_acm_certificate.app[0].domain_validation_options :
+      option.resource_record_value if option.domain_name == each.value
+    ])
+  ]
 }
 
 resource "aws_acm_certificate_validation" "app" {
   count    = local.has_route53 ? 1 : 0
-  provider = aws.us_west_1
+  provider = aws.us_east_1
 
   certificate_arn         = aws_acm_certificate.app[0].arn
   validation_record_fqdns = [for record in aws_route53_record.app_certificate_validation : record.fqdn]
@@ -281,9 +286,66 @@ resource "aws_route53_record" "app_ipv6" {
 resource "aws_route53_record" "api_origin" {
   count = local.has_route53 ? 1 : 0
 
-  zone_id = var.route53_zone_id
-  name    = "origin.${var.domain_name}"
-  type    = "A"
-  ttl     = 60
-  records = [aws_eip.ecs_host.public_ip]
+  allow_overwrite = true
+  zone_id         = var.route53_zone_id
+  name            = "origin.${var.domain_name}"
+  type            = "A"
+  ttl             = 60
+  records         = [aws_eip.ecs_host.public_ip]
+}
+
+# Clerk production DNS. Values must match the Clerk Dashboard exactly.
+resource "aws_route53_record" "clerk_frontend_api" {
+  count = local.has_route53 ? 1 : 0
+
+  allow_overwrite = true
+  zone_id         = var.route53_zone_id
+  name            = "clerk.${var.domain_name}"
+  type            = "CNAME"
+  ttl             = 60
+  records         = ["frontend-api.clerk.services"]
+}
+
+resource "aws_route53_record" "clerk_accounts" {
+  count = local.has_route53 ? 1 : 0
+
+  allow_overwrite = true
+  zone_id         = var.route53_zone_id
+  name            = "accounts.${var.domain_name}"
+  type            = "CNAME"
+  ttl             = 60
+  records         = ["accounts.clerk.services"]
+}
+
+resource "aws_route53_record" "clerk_dkim1" {
+  count = local.has_route53 ? 1 : 0
+
+  allow_overwrite = true
+  zone_id         = var.route53_zone_id
+  name            = "clk._domainkey.${var.domain_name}"
+  type            = "CNAME"
+  ttl             = 60
+  records         = ["dkim1.jh0ilzdugbnt.clerk.services"]
+}
+
+resource "aws_route53_record" "clerk_dkim2" {
+  count = local.has_route53 ? 1 : 0
+
+  allow_overwrite = true
+  zone_id         = var.route53_zone_id
+  name            = "clk2._domainkey.${var.domain_name}"
+  type            = "CNAME"
+  ttl             = 60
+  records         = ["dkim2.jh0ilzdugbnt.clerk.services"]
+}
+
+resource "aws_route53_record" "clerk_mail" {
+  count = local.has_route53 ? 1 : 0
+
+  allow_overwrite = true
+  zone_id         = var.route53_zone_id
+  name            = "clkmail.${var.domain_name}"
+  type            = "CNAME"
+  ttl             = 60
+  records         = ["mail.jh0ilzdugbnt.clerk.services"]
 }

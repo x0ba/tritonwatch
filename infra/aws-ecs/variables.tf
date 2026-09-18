@@ -28,9 +28,9 @@ variable "environment" {
 }
 
 variable "instance_type" {
-  description = "ECS container instance type. Increase to t3a.large if 4 GB is insufficient."
+  description = "Requested ECS container instance type. Unknown types fall back to m7i-flex.large, which new Free Tier accounts can launch."
   type        = string
-  default     = "t3a.medium"
+  default     = "m7i-flex.large"
 }
 
 variable "root_volume_size_gb" {
@@ -131,7 +131,7 @@ variable "budget_email" {
 variable "monthly_budget_usd" {
   description = "Account-wide monthly AWS budget alert threshold."
   type        = number
-  default     = 50
+  default     = 20
 
   validation {
     condition     = var.monthly_budget_usd > 0
@@ -184,9 +184,9 @@ variable "twilio_verify_service_sid" {
 }
 
 variable "enable_backups" {
-  description = "Create daily AWS Backup recovery points for the ECS host."
+  description = "Create daily AWS Backup recovery points for the ECS host. Off by default; snapshots are one of the larger leftover AWS charges."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "backup_retention_days" {

@@ -25,10 +25,10 @@ provider "aws" {
   }
 }
 
-# ACM certificates for CloudFront must be issued in us-west-1.
+# ACM certificates for CloudFront must be issued in us-east-1.
 provider "aws" {
-  alias  = "us_west_1"
-  region = "us-west-1"
+  alias  = "us_east_1"
+  region = "us-east-1"
 
   default_tags {
     tags = {
