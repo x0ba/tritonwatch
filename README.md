@@ -3,7 +3,7 @@
 WIP: App that alerts students via email or text when their UCSD courses open up.
 
 > [!NOTE]  
-> Unfortunately prod is down till further notice cuz I ran out of AWS credits, will work on finding a cheaper option and bringing this service back up.
+> Working on getting approval from Postmark and Twilio for the actual notification part, will start working once they are approved.
 
 ## Architecture
 
